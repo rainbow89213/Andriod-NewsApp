@@ -22,3 +22,11 @@ backend/mvnw.cmd
 backend/HELP.md
 backend/.idea/
 backend/*.iml
+
+# 说明文档（不上传到GitHub）
+*.说明.md
+*说明.md
+1.Android项目结构说明.md
+2.新闻卡片功能说明.md
+3.服务端数据下发集成说明.md
+4.Git项目管理操作说明.md
