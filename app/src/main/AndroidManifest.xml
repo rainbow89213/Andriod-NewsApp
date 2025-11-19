@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    AndroidManifest.xml - Android 应用清单文件
+    
+    这是 Android 应用最重要的配置文件之一，必须位于 src/main/ 目录下
+    
+    作用：
+    1. 声明应用的包名
+    2. 定义应用的组件（Activity、Service、BroadcastReceiver、ContentProvider）
+    3. 声明应用需要的权限（如网络、相机、存储等）
+    4. 配置应用的图标、名称、主题
+    5. 指定应用的启动 Activity
+    6. 设置应用的最低 SDK 版本等
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- 
+        权限声明：应用需要的权限
+    -->
+    <!-- 网络权限：允许应用访问网络 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- 网络状态权限：允许应用检查网络连接状态 -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- application 标签：定义应用的全局配置 -->
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Demo2"
+        android:usesCleartextTraffic="true">
+        
+        <!--
+            allowBackup="true"
+            - 允许系统备份应用数据
+            
+            dataExtractionRules="@xml/data_extraction_rules"
+            - Android 12+ 的数据提取规则
+            
+            fullBackupContent="@xml/backup_rules"
+            - 完整备份的内容规则
+            
+            icon="@mipmap/ic_launcher"
+            - 应用图标（方形）
+            
+            label="@string/app_name"
+            - 应用名称，引用 strings.xml 中的字符串资源
+            
+            roundIcon="@mipmap/ic_launcher_round"
+            - 圆形应用图标（部分设备使用）
+            
+            supportsRtl="true"
+            - 支持从右到左的语言（如阿拉伯语、希伯来语）
+            
+            theme="@style/Theme.Demo2"
+            - 应用的默认主题样式
+        -->
+        
+        <!-- 
+            Activity 声明：每个 Activity 都必须在这里声明
+            MainActivity 是应用的主界面
+        -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <!--
+                android:name=".MainActivity"
+                - Activity 的类名，"." 表示相对于包名的路径
+                - 完整路径是 com.example.demo2.MainActivity
+                
+                android:exported="true"
+                - 允许其他应用启动这个 Activity
+                - 如果有 intent-filter，必须设置为 true
+            -->
+            
+            <!-- 
+                intent-filter：定义 Activity 可以响应的 Intent
+                这里定义了启动器 Intent，使这个 Activity 成为应用的入口
+            -->
+            <intent-filter>
+                <!-- MAIN action：表示这是应用的主入口 -->
+                <action android:name="android.intent.action.MAIN" />
+
+                <!-- LAUNCHER category：表示这个 Activity 会显示在应用启动器中 -->
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        <!--
+            如果有更多 Activity，在这里继续声明，例如：
+            <activity android:name=".SecondActivity" />
+        -->
+    </application>
+
+</manifest>

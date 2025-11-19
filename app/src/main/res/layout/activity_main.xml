@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    activity_main.xml - MainActivity 的布局文件
+    
+    作用：定义 MainActivity 的界面结构和视图元素
+    
+    布局文件位置：res/layout/
+    在 Java 代码中通过 R.layout.activity_main 引用
+    
+    ConstraintLayout 是一种强大的布局管理器，可以创建复杂的响应式布局
+    相比 LinearLayout 和 RelativeLayout，性能更好，功能更强大
+-->
+<androidx.constraintlayout.widget.ConstraintLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+    
+    <!--
+        ConstraintLayout 属性说明：
+        
+        xmlns:android - Android 标准命名空间
+        xmlns:app - 应用自定义属性命名空间（用于约束布局）
+        xmlns:tools - 开发工具命名空间（仅在设计时有效）
+        
+        android:id="@+id/main"
+        - 为这个布局设置 ID，可以在代码中通过 findViewById(R.id.main) 获取
+        
+        android:layout_width="match_parent"
+        - 宽度匹配父容器（填满整个屏幕宽度）
+        
+        android:layout_height="match_parent"
+        - 高度匹配父容器（填满整个屏幕高度）
+        
+        tools:context=".MainActivity"
+        - 指定这个布局关联的 Activity（仅用于设计时预览）
+    -->
+
+    <!-- 
+        RecyclerView - 高性能列表组件
+        用于显示新闻卡片列表
+        
+        RecyclerView 的优势：
+        1. 自动回收和复用视图，内存占用小
+        2. 支持多种布局管理器（线性、网格、瀑布流）
+        3. 支持添加动画效果
+        4. 性能优于传统的 ListView
+    -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="8dp"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+    
+    <!--
+        RecyclerView 属性说明：
+        
+        android:id="@+id/recyclerView"
+        - 设置 ID，在 MainActivity 中通过这个 ID 获取
+        
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        - 填满整个屏幕
+        
+        android:padding="8dp"
+        - 内边距 8dp
+        
+        android:clipToPadding="false"
+        - 允许内容滚动到 padding 区域，使滚动更流畅
+    -->
+    
+    <!--
+        TextView 属性说明：
+        
+        android:layout_width="wrap_content"
+        - 宽度自适应内容（根据文字长度自动调整）
+        - 其他选项：match_parent（填满父容器）、具体数值（如 100dp）
+        
+        android:layout_height="wrap_content"
+        - 高度自适应内容
+        
+        android:text="Hello World!"
+        - 显示的文字内容
+        - 建议使用字符串资源：android:text="@string/hello"
+        
+        app:layout_constraintBottom_toBottomOf="parent"
+        - 底部约束到父容器的底部
+        
+        app:layout_constraintEnd_toEndOf="parent"
+        - 右侧约束到父容器的右侧
+        
+        app:layout_constraintStart_toStartOf="parent"
+        - 左侧约束到父容器的左侧
+        
+        app:layout_constraintTop_toTopOf="parent"
+        - 顶部约束到父容器的顶部
+        
+        这四个约束使 TextView 居中显示在屏幕中央
+    -->
+    
+    <!--
+        常用的其他视图控件：
+        
+        <Button
+            android:id="@+id/button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="点击我" />
+        
+        <EditText
+            android:id="@+id/editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="请输入文字" />
+        
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/ic_launcher_foreground" />
+    -->
+
+</androidx.constraintlayout.widget.ConstraintLayout>
