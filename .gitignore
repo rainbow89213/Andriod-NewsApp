@@ -14,14 +14,12 @@
 .cxx
 local.properties
 
-# Backend (Spring Boot)
-backend/target/
-backend/.mvn/
-backend/mvnw
-backend/mvnw.cmd
-backend/HELP.md
-backend/.idea/
-backend/*.iml
+# NewsApp (Spring Boot)
+newsApp/target/
+newsApp/.mvn/
+newsApp/mvnw
+newsApp/mvnw.cmd
+newsApp/HELP.md
 
 # 说明文档（不上传到GitHub）
 *.说明.md

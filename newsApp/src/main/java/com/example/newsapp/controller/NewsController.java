@@ -1,6 +1,6 @@
-package com.example.newsbackend.controller;
+package com.example.newsapp.controller;
 
-import com.example.newsbackend.model.NewsItem;
+import com.example.newsapp.model.NewsItem;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
