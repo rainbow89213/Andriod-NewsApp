@@ -121,37 +121,26 @@
             android:maxLines="3"
             android:ellipsize="end" />
 
-        <!-- 底部信息栏：水平布局，包含时间和阅读数 -->
+        <!-- 底部信息栏：垂直布局，时间在上，阅读数在下 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:padding="12dp"
             android:paddingTop="0dp">
 
             <!-- 发布时间 -->
             <TextView
                 android:id="@+id/newsTime"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="2小时前"
+                android:text="2025-11-23"
                 android:textColor="@android:color/darker_gray"
                 android:textSize="12sp"
                 android:drawableLeft="@android:drawable/ic_menu_recent_history"
                 android:drawablePadding="4dp"
-                android:gravity="center_vertical" />
-            
-            <!--
-                android:layout_weight="1"
-                - 权重为 1，占据剩余空间
-                
-                android:drawableLeft
-                - 在文字左侧显示图标
-                
-                android:drawablePadding="4dp"
-                - 图标和文字之间的间距
-            -->
+                android:gravity="center_vertical"
+                android:layout_marginBottom="4dp" />
 
             <!-- 阅读数 -->
             <TextView

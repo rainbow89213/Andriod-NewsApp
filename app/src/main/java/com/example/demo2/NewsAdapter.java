@@ -1,5 +1,7 @@
 package com.example.demo2;
 
+import android.app.AlertDialog;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,23 +21,49 @@ import java.util.List;
 /**
  * NewsAdapter - RecyclerView 的适配器类
  * 
+ * 【第12次修改】新增功能：
+ * 1. 支持多种卡片布局（垂直、横向、加载更多）
+ * 2. 长按删除卡片功能
+ * 3. 动态显示加载更多卡片
+ * 
  * 作用：
  * 1. 连接数据源（新闻列表）和 RecyclerView
  * 2. 负责创建和绑定每个卡片视图
- * 3. 处理卡片的点击事件
+ * 3. 处理卡片的点击和长按事件
  * 
  * RecyclerView 工作原理：
  * - 只创建屏幕可见的视图 + 少量缓存
  * - 当视图滚出屏幕时，会被回收并复用
  * - 这样即使有成千上万条数据，也只会创建少量视图对象
- * 
- * 继承关系：
- * NewsAdapter -> RecyclerView.Adapter<NewsAdapter.ViewHolder>
  */
-public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> {
+public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    // 视图类型常量
+    private static final int VIEW_TYPE_NEWS_VERTICAL = 0;    // 垂直新闻卡片
+    private static final int VIEW_TYPE_NEWS_HORIZONTAL = 1;  // 横向新闻卡片
+    public static final int VIEW_TYPE_LOAD_MORE = 2;         // 加载更多卡片（public以便外部访问）
+    private static final int VIEW_TYPE_NEWS_GRID = 3;        // 网格布局专用卡片（简洁版）
 
     // 新闻数据列表
     private List<NewsItem> newsList;
+    
+    // 是否显示加载更多
+    private boolean showLoadMore = false;
+    
+    // 是否还有更多数据
+    private boolean hasMoreData = true;
+    
+    // 是否正在加载
+    private boolean isLoading = false;
+    
+    // 【第16次修改】布局模式标识
+    private boolean isGridMode = false;  // 是否为网格布局模式
+    
+    // 加载更多点击监听器
+    private OnLoadMoreClickListener loadMoreClickListener;
+    
+    // 删除卡片监听器
+    private OnItemDeleteListener deleteListener;
 
     /**
      * 构造函数：初始化适配器
@@ -45,18 +73,76 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> {
     public NewsAdapter(List<NewsItem> newsList) {
         this.newsList = newsList;
     }
+    
+    /**
+     * 设置加载更多点击监听器
+     */
+    public void setOnLoadMoreClickListener(OnLoadMoreClickListener listener) {
+        this.loadMoreClickListener = listener;
+    }
+    
+    /**
+     * 设置删除监听器
+     */
+    public void setOnItemDeleteListener(OnItemDeleteListener listener) {
+        this.deleteListener = listener;
+    }
+    
+    /**
+     * 设置是否显示加载更多
+     */
+    public void setShowLoadMore(boolean show) {
+        android.util.Log.d("NewsAdapter", "⚙️ setShowLoadMore: " + showLoadMore + " → " + show);
+        this.showLoadMore = show;
+        notifyDataSetChanged();
+        android.util.Log.d("NewsAdapter", "  → notifyDataSetChanged() 已调用");
+    }
+    
+    /**
+     * 设置是否还有更多数据
+     */
+    public void setHasMoreData(boolean hasMore) {
+        this.hasMoreData = hasMore;
+        notifyDataSetChanged();
+    }
+    
+    /**
+     * 【第13次修改】设置加载中状态
+     */
+    public void setLoading(boolean loading) {
+        this.isLoading = loading;
+        notifyDataSetChanged();
+    }
+    
+    /**
+     * 【第16次修改】设置布局模式
+     * 
+     * @param isGrid true表示网格布局，false表示单列布局
+     */
+    public void setGridMode(boolean isGrid) {
+        android.util.Log.d("NewsAdapter", "⚙️ 设置布局模式: " + (isGrid ? "网格" : "单列"));
+        this.isGridMode = isGrid;
+        notifyDataSetChanged();
+    }
+    
+    /**
+     * 加载更多点击监听接口
+     */
+    public interface OnLoadMoreClickListener {
+        void onLoadMoreClick();
+    }
+    
+    /**
+     * 删除监听接口
+     */
+    public interface OnItemDeleteListener {
+        void onItemDelete(int position);
+    }
 
     /**
-     * ViewHolder - 视图持有者内部类
-     * 
-     * 作用：
-     * 1. 持有卡片布局中的所有视图引用
-     * 2. 避免重复调用 findViewById，提高性能
-     * 3. 处理单个卡片的交互事件
-     * 
-     * 这是 ViewHolder 模式的实现，是 RecyclerView 高性能的关键
+     * 新闻ViewHolder - 新闻卡片视图持有者
      */
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class NewsViewHolder extends RecyclerView.ViewHolder {
         // 卡片中的各个视图组件
         ImageView newsImage;      // 新闻图片
         TextView newsTitle;       // 新闻标题
@@ -65,15 +151,10 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> {
         TextView newsReadCount;   // 阅读数
 
         /**
-         * ViewHolder 构造函数
-         * 
-         * @param itemView 单个卡片的根视图
+         * NewsViewHolder 构造函数
          */
-        public ViewHolder(@NonNull View itemView) {
+        public NewsViewHolder(@NonNull View itemView) {
             super(itemView);
-            
-            // 通过 findViewById 获取卡片中的各个视图
-            // 这些 ID 对应 item_news_card.xml 中定义的 ID
             newsImage = itemView.findViewById(R.id.newsImage);
             newsTitle = itemView.findViewById(R.id.newsTitle);
             newsSummary = itemView.findViewById(R.id.newsSummary);
@@ -83,92 +164,212 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.ViewHolder> {
 
         /**
          * 绑定数据到视图
-         * 
-         * @param newsItem 要显示的新闻数据
          */
-        public void bind(NewsItem newsItem) {
+        public void bind(NewsItem newsItem, OnItemDeleteListener deleteListener, int position) {
             // 使用 Glide 加载网络图片
-            Glide.with(itemView.getContext())
-                    .load(newsItem.getImageUrl())
-                    .apply(new RequestOptions()
-                            .placeholder(android.R.drawable.ic_menu_gallery) // 加载中显示的占位图
-                            .error(android.R.drawable.ic_menu_report_image) // 加载失败显示的图片
-                            .transform(new RoundedCorners(16))) // 圆角处理
-                    .into(newsImage);
+            if (newsImage != null) {
+                Glide.with(itemView.getContext())
+                        .load(newsItem.getImageUrl())
+                        .apply(new RequestOptions()
+                                .placeholder(android.R.drawable.ic_menu_gallery) // 加载中显示的占位图
+                                .error(android.R.drawable.ic_menu_report_image) // 加载失败显示的图片
+                                .transform(new RoundedCorners(16))) // 圆角处理
+                        .into(newsImage);
+            }
             
-            // 设置文字内容
-            newsTitle.setText(newsItem.getTitle());
-            newsSummary.setText(newsItem.getSummary());
-            newsTime.setText(newsItem.getPublishTime());
-            newsReadCount.setText(newsItem.getReadCount());
+            // 设置文字内容（必有的View）
+            if (newsTitle != null) {
+                newsTitle.setText(newsItem.getTitle());
+            }
+            
+            if (newsReadCount != null) {
+                newsReadCount.setText(newsItem.getReadCount());
+            }
+            
+            // 【第16次修改】设置可选的View（网格布局中不存在）
+            if (newsSummary != null) {
+                newsSummary.setText(newsItem.getSummary());
+            }
+            
+            if (newsTime != null) {
+                newsTime.setText(newsItem.getPublishTime());
+            }
 
             // 设置卡片点击事件
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // 点击卡片时显示 Toast 提示
-                    Toast.makeText(v.getContext(), 
-                        "点击了：" + newsItem.getTitle(), 
-                        Toast.LENGTH_SHORT).show();
-                    
-                    // 在实际应用中，这里可以：
-                    // 1. 跳转到新闻详情页
-                    // 2. 打开浏览器查看完整新闻
-                    // 3. 分享新闻等
+            itemView.setOnClickListener(v -> {
+                Toast.makeText(v.getContext(), 
+                    "点击了：" + newsItem.getTitle(), 
+                    Toast.LENGTH_SHORT).show();
+            });
+            
+            // 【第12次修改】设置长按删除事件
+            itemView.setOnLongClickListener(v -> {
+                if (deleteListener != null) {
+                    // 显示删除确认对话框
+                    new AlertDialog.Builder(v.getContext())
+                        .setTitle("删除新闻")
+                        .setMessage("确定要删除这条新闻吗？\n\n" + newsItem.getTitle())
+                        .setPositiveButton("确定", (dialog, which) -> {
+                            deleteListener.onItemDelete(position);
+                        })
+                        .setNegativeButton("取消", null)
+                        .show();
                 }
+                return true;
             });
         }
+    }
+    
+    /**
+     * 加载更多ViewHolder - 加载更多卡片视图持有者
+     */
+    public static class LoadMoreViewHolder extends RecyclerView.ViewHolder {
+        TextView loadMoreText;
+        
+        public LoadMoreViewHolder(@NonNull View itemView) {
+            super(itemView);
+            loadMoreText = itemView.findViewById(R.id.loadMoreText);
+        }
+        
+        public void bind(OnLoadMoreClickListener listener, boolean hasMoreData, boolean isLoading) {
+            android.util.Log.d("NewsAdapter", "🔧 LoadMoreViewHolder.bind 被调用");
+            android.util.Log.d("NewsAdapter", "  - hasMoreData: " + hasMoreData);
+            android.util.Log.d("NewsAdapter", "  - isLoading: " + isLoading);
+            android.util.Log.d("NewsAdapter", "  - listener: " + (listener != null ? "已设置" : "null"));
+            
+            if (isLoading) {
+                // 【第13次修改】正在加载，显示"加载中..."
+                android.util.Log.d("NewsAdapter", "  → 显示：加载中...");
+                loadMoreText.setText("加载中...");
+                loadMoreText.setTextColor(0xFF999999);  // 灰色
+                loadMoreText.setClickable(false);
+                itemView.setOnClickListener(null);
+            } else if (hasMoreData) {
+                // 还有更多数据，显示"点击加载更多"
+                android.util.Log.d("NewsAdapter", "  → 显示：点击加载更多（蓝色，可点击）");
+                loadMoreText.setText("点击加载更多");
+                loadMoreText.setTextColor(0xFF2196F3);  // 蓝色
+                
+                // 【修复】同时在TextView和itemView上设置点击监听
+                android.view.View.OnClickListener clickListener = v -> {
+                    android.util.Log.d("NewsAdapter", "🔘🔘🔘 加载更多卡片被点击了！🔘🔘🔘");
+                    if (listener != null) {
+                        android.util.Log.d("NewsAdapter", "  → 调用listener.onLoadMoreClick()");
+                        listener.onLoadMoreClick();
+                    } else {
+                        android.util.Log.e("NewsAdapter", "  ❌ listener是null！");
+                    }
+                };
+                
+                loadMoreText.setOnClickListener(clickListener);
+                itemView.setOnClickListener(clickListener);
+                loadMoreText.setClickable(true);
+                itemView.setClickable(true);
+            } else {
+                // 没有更多数据，显示"已加载全部数据"
+                android.util.Log.d("NewsAdapter", "  → 显示：已加载全部数据（灰色，不可点击）");
+                loadMoreText.setText("已加载全部数据");
+                loadMoreText.setTextColor(0xFF999999);  // 灰色
+                loadMoreText.setClickable(false);
+                itemView.setOnClickListener(null);
+            }
+        }
+    }
+    
+    /**
+     * 获取视图类型
+     */
+    @Override
+    public int getItemViewType(int position) {
+        android.util.Log.d("NewsAdapter", "🔍 getItemViewType - position: " + position);
+        android.util.Log.d("NewsAdapter", "  - newsList.size: " + newsList.size());
+        android.util.Log.d("NewsAdapter", "  - showLoadMore: " + showLoadMore);
+        android.util.Log.d("NewsAdapter", "  - isGridMode: " + isGridMode);
+        
+        // 如果是最后一个位置且显示加载更多
+        if (position == newsList.size() && showLoadMore) {
+            android.util.Log.d("NewsAdapter", "  → 返回：VIEW_TYPE_LOAD_MORE");
+            return VIEW_TYPE_LOAD_MORE;
+        }
+        
+        // 【第16次修改】网格模式使用简洁布局
+        if (isGridMode) {
+            android.util.Log.d("NewsAdapter", "  → 返回：网格卡片（简洁版）");
+            return VIEW_TYPE_NEWS_GRID;
+        }
+        
+        // 单列模式：偶数位置使用垂直布局，奇数位置使用横向布局
+        int type = position % 2 == 0 ? VIEW_TYPE_NEWS_VERTICAL : VIEW_TYPE_NEWS_HORIZONTAL;
+        android.util.Log.d("NewsAdapter", "  → 返回：" + (type == VIEW_TYPE_NEWS_VERTICAL ? "垂直卡片" : "横向卡片"));
+        return type;
     }
 
     /**
      * onCreateViewHolder - 创建 ViewHolder
-     * 
-     * 当 RecyclerView 需要一个新的 ViewHolder 时调用
-     * 这个方法只在需要创建新视图时调用，复用时不会调用
-     * 
-     * @param parent RecyclerView
-     * @param viewType 视图类型（如果有多种卡片样式时使用）
-     * @return 新创建的 ViewHolder
      */
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // 使用 LayoutInflater 将 XML 布局文件转换为 View 对象
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_news_card, parent, false);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         
-        // 创建并返回 ViewHolder
-        return new ViewHolder(view);
+        switch (viewType) {
+            case VIEW_TYPE_NEWS_VERTICAL:
+                // 垂直布局
+                View verticalView = inflater.inflate(R.layout.item_news_card, parent, false);
+                return new NewsViewHolder(verticalView);
+                
+            case VIEW_TYPE_NEWS_HORIZONTAL:
+                // 横向布局
+                View horizontalView = inflater.inflate(R.layout.item_news_card_horizontal, parent, false);
+                return new NewsViewHolder(horizontalView);
+                
+            case VIEW_TYPE_NEWS_GRID:
+                // 【第16次修改】网格布局（简洁版）
+                View gridView = inflater.inflate(R.layout.item_news_card_grid, parent, false);
+                return new NewsViewHolder(gridView);
+                
+            case VIEW_TYPE_LOAD_MORE:
+                // 加载更多
+                View loadMoreView = inflater.inflate(R.layout.item_load_more, parent, false);
+                return new LoadMoreViewHolder(loadMoreView);
+                
+            default:
+                View defaultView = inflater.inflate(R.layout.item_news_card, parent, false);
+                return new NewsViewHolder(defaultView);
+        }
     }
 
     /**
      * onBindViewHolder - 绑定数据到 ViewHolder
-     * 
-     * 当 RecyclerView 需要显示数据时调用
-     * 这个方法会频繁调用，每次滚动都可能触发
-     * 
-     * @param holder 要绑定数据的 ViewHolder
-     * @param position 数据在列表中的位置
      */
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        // 获取指定位置的新闻数据
-        NewsItem newsItem = newsList.get(position);
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        android.util.Log.d("NewsAdapter", "📍 onBindViewHolder - position: " + position + ", 总数: " + getItemCount());
         
-        // 将数据绑定到 ViewHolder
-        holder.bind(newsItem);
+        if (holder instanceof NewsViewHolder) {
+            // 新闻卡片
+            android.util.Log.d("NewsAdapter", "  → 绑定新闻卡片");
+            NewsItem newsItem = newsList.get(position);
+            ((NewsViewHolder) holder).bind(newsItem, deleteListener, position);
+        } else if (holder instanceof LoadMoreViewHolder) {
+            // 【第13次修改】加载更多卡片，传递isLoading状态
+            android.util.Log.d("NewsAdapter", "  → 绑定加载更多卡片");
+            android.util.Log.d("NewsAdapter", "     showLoadMore: " + showLoadMore);
+            android.util.Log.d("NewsAdapter", "     hasMoreData: " + hasMoreData);
+            android.util.Log.d("NewsAdapter", "     isLoading: " + isLoading);
+            ((LoadMoreViewHolder) holder).bind(loadMoreClickListener, hasMoreData, isLoading);
+        } else {
+            android.util.Log.e("NewsAdapter", "  ❌ 未知的ViewHolder类型！");
+        }
     }
 
     /**
      * getItemCount - 获取数据总数
-     * 
-     * RecyclerView 通过这个方法知道有多少条数据
-     * 
-     * @return 数据总数
      */
     @Override
     public int getItemCount() {
-        return newsList.size();
+        // 如果显示加载更多，总数+1
+        return showLoadMore ? newsList.size() + 1 : newsList.size();
     }
 
     /**

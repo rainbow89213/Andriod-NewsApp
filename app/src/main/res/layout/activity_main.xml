@@ -2,13 +2,7 @@
 <!--
     activity_main.xml - MainActivity 的布局文件
     
-    作用：定义 MainActivity 的界面结构和视图元素
-    
-    布局文件位置：res/layout/
-    在 Java 代码中通过 R.layout.activity_main 引用
-    
-    ConstraintLayout 是一种强大的布局管理器，可以创建复杂的响应式布局
-    相比 LinearLayout 和 RelativeLayout，性能更好，功能更强大
+    【第8次修改】添加分类标签栏和自定义滚动条
 -->
 <androidx.constraintlayout.widget.ConstraintLayout 
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -18,46 +12,76 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-    
-    <!--
-        ConstraintLayout 属性说明：
-        
-        xmlns:android - Android 标准命名空间
-        xmlns:app - 应用自定义属性命名空间（用于约束布局）
-        xmlns:tools - 开发工具命名空间（仅在设计时有效）
-        
-        android:id="@+id/main"
-        - 为这个布局设置 ID，可以在代码中通过 findViewById(R.id.main) 获取
-        
-        android:layout_width="match_parent"
-        - 宽度匹配父容器（填满整个屏幕宽度）
-        
-        android:layout_height="match_parent"
-        - 高度匹配父容器（填满整个屏幕高度）
-        
-        tools:context=".MainActivity"
-        - 指定这个布局关联的 Activity（仅用于设计时预览）
-    -->
 
-    <!-- 
-        RecyclerView - 高性能列表组件
-        用于显示新闻卡片列表
+    <!-- 顶部栏容器 -->
+    <LinearLayout
+        android:id="@+id/topBarContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#F5F5F5"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
         
-        RecyclerView 的优势：
-        1. 自动回收和复用视图，内存占用小
-        2. 支持多种布局管理器（线性、网格、瀑布流）
-        3. 支持添加动画效果
-        4. 性能优于传统的 ListView
-    -->
+        <!-- 分类标签栏 - 水平滚动视图 -->
+        <HorizontalScrollView
+            android:id="@+id/categoryScrollView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:scrollbars="none"
+            android:paddingVertical="8dp">
+            
+            <!-- 分类标签容器 - 线性布局 -->
+            <LinearLayout
+                android:id="@+id/categoryContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="8dp">
+                
+                <!-- 分类标签将在代码中动态添加 -->
+                
+            </LinearLayout>
+        </HorizontalScrollView>
+        
+        <!-- 布局切换按钮 -->
+        <ImageButton
+            android:id="@+id/layoutSwitchButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_view"
+            android:contentDescription="切换布局"
+            android:scaleType="centerInside"
+            android:padding="12dp" />
+    </LinearLayout>
+
+    <!-- RecyclerView - 新闻列表 -->
+    <!-- 【第16次修改】支持单列/双列布局切换 -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:padding="8dp"
         android:clipToPadding="false"
-        app:layout_constraintTop_toTopOf="parent"
+        android:scrollbars="none"
+        app:layout_constraintTop_toBottomOf="@id/topBarContainer"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/customScrollbar" />
+    
+    <!-- 自定义滚动条 -->
+    <View
+        android:id="@+id/customScrollbar"
+        android:layout_width="8dp"
+        android:layout_height="100dp"
+        android:background="@drawable/scrollbar_thumb"
+        android:layout_marginEnd="4dp"
+        app:layout_constraintTop_toBottomOf="@id/categoryScrollView"
         app:layout_constraintEnd_toEndOf="parent" />
     
     <!--

@@ -122,6 +122,13 @@ dependencies {
     
     // Glide：图片加载库
     implementation(libs.glide)
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+    
+    // 【第6次修改】Room：本地数据库（SQLite 封装）
+    // Room 是 Google 官方推荐的 Android 本地数据库解决方案
+    // 用于缓存新闻数据，实现离线阅读和快速加载
+    implementation("androidx.room:room-runtime:2.6.1")
+    annotationProcessor("androidx.room:room-compiler:2.6.1")
     
     // testImplementation：仅在单元测试时需要的依赖
     // JUnit：Java 单元测试框架
