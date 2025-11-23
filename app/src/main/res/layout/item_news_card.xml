@@ -44,6 +44,11 @@
         - 使用兼容性内边距，确保在不同版本上显示一致
     -->
 
+    <!-- 【第18次修改】使用FrameLayout以便叠加菜单按钮 -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    
     <!-- 垂直线性布局：从上到下排列子视图 -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -157,5 +162,20 @@
         </LinearLayout>
 
     </LinearLayout>
+    
+    <!-- 【第18次修改】三点菜单按钮（右下角） -->
+    <ImageButton
+        android:id="@+id/cardMenuButton"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@android:drawable/ic_menu_more"
+        android:contentDescription="卡片菜单"
+        android:padding="8dp"
+        android:scaleType="centerInside" />
+    
+    </FrameLayout>
 
 </com.google.android.material.card.MaterialCardView>

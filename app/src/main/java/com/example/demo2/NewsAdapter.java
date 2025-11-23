@@ -59,6 +59,10 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     // 【第16次修改】布局模式标识
     private boolean isGridMode = false;  // 是否为网格布局模式
     
+    // 【第18次修改】单卡片样式覆盖
+    // Key: position, Value: 视图类型（0=垂直, 1=横向, 3=网格）
+    private java.util.Map<Integer, Integer> cardStyleOverrides = new java.util.HashMap<>();
+    
     // 加载更多点击监听器
     private OnLoadMoreClickListener loadMoreClickListener;
     
@@ -149,6 +153,7 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         TextView newsSummary;     // 新闻摘要
         TextView newsTime;        // 发布时间
         TextView newsReadCount;   // 阅读数
+        android.widget.ImageButton cardMenuButton;  // 【第18次修改】卡片菜单按钮
 
         /**
          * NewsViewHolder 构造函数
@@ -160,12 +165,13 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             newsSummary = itemView.findViewById(R.id.newsSummary);
             newsTime = itemView.findViewById(R.id.newsTime);
             newsReadCount = itemView.findViewById(R.id.newsReadCount);
+            cardMenuButton = itemView.findViewById(R.id.cardMenuButton);  // 【第18次修改】
         }
 
         /**
          * 绑定数据到视图
          */
-        public void bind(NewsItem newsItem, OnItemDeleteListener deleteListener, int position) {
+        public void bind(NewsItem newsItem, OnItemDeleteListener deleteListener, int position, NewsAdapter adapter) {
             // 使用 Glide 加载网络图片
             if (newsImage != null) {
                 Glide.with(itemView.getContext())
@@ -217,6 +223,13 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
                 return true;
             });
+            
+            // 【第18次修改】设置卡片菜单按钮点击事件
+            if (cardMenuButton != null) {
+                cardMenuButton.setOnClickListener(v -> {
+                    adapter.showCardStyleMenu(v, position);
+                });
+            }
         }
     }
     
@@ -292,6 +305,13 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             return VIEW_TYPE_LOAD_MORE;
         }
         
+        // 【第18次修改】检查是否有单卡片样式覆盖
+        if (cardStyleOverrides.containsKey(position)) {
+            int overrideType = cardStyleOverrides.get(position);
+            android.util.Log.d("NewsAdapter", "  → 返回：单卡片覆盖样式 = " + overrideType);
+            return overrideType;
+        }
+        
         // 【第16次修改】网格模式使用简洁布局
         if (isGridMode) {
             android.util.Log.d("NewsAdapter", "  → 返回：网格卡片（简洁版）");
@@ -350,7 +370,7 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             // 新闻卡片
             android.util.Log.d("NewsAdapter", "  → 绑定新闻卡片");
             NewsItem newsItem = newsList.get(position);
-            ((NewsViewHolder) holder).bind(newsItem, deleteListener, position);
+            ((NewsViewHolder) holder).bind(newsItem, deleteListener, position, this);
         } else if (holder instanceof LoadMoreViewHolder) {
             // 【第13次修改】加载更多卡片，传递isLoading状态
             android.util.Log.d("NewsAdapter", "  → 绑定加载更多卡片");
@@ -391,5 +411,46 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void clearData() {
         this.newsList.clear();
         notifyDataSetChanged();
+    }
+    
+    /**
+     * 【第18次修改】显示卡片样式选择菜单
+     */
+    public void showCardStyleMenu(android.view.View anchor, int position) {
+        android.widget.PopupMenu popupMenu = new android.widget.PopupMenu(anchor.getContext(), anchor);
+        
+        // 添加菜单项
+        popupMenu.getMenu().add(0, VIEW_TYPE_NEWS_VERTICAL, 0, "垂直卡片样式");
+        popupMenu.getMenu().add(0, VIEW_TYPE_NEWS_HORIZONTAL, 1, "横向卡片样式");
+        popupMenu.getMenu().add(0, VIEW_TYPE_NEWS_GRID, 2, "网格卡片样式（简洁）");
+        popupMenu.getMenu().add(0, -1, 3, "恢复默认样式");
+        
+        // 设置菜单项点击事件
+        popupMenu.setOnMenuItemClickListener(item -> {
+            int selectedStyle = item.getItemId();
+            
+            if (selectedStyle == -1) {
+                // 恢复默认样式
+                cardStyleOverrides.remove(position);
+                android.util.Log.d("NewsAdapter", "🔄 恢复默认样式 - position: " + position);
+            } else {
+                // 设置单卡片样式
+                cardStyleOverrides.put(position, selectedStyle);
+                String styleName = selectedStyle == VIEW_TYPE_NEWS_VERTICAL ? "垂直" :
+                                   selectedStyle == VIEW_TYPE_NEWS_HORIZONTAL ? "横向" : "网格";
+                android.util.Log.d("NewsAdapter", "✨ 设置单卡片样式 - position: " + position + ", 样式: " + styleName);
+            }
+            
+            // 刷新该卡片
+            notifyItemChanged(position);
+            
+            android.widget.Toast.makeText(anchor.getContext(), 
+                item.getTitle() + " 已应用", 
+                android.widget.Toast.LENGTH_SHORT).show();
+            
+            return true;
+        });
+        
+        popupMenu.show();
     }
 }

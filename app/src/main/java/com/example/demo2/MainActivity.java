@@ -118,6 +118,12 @@ public class MainActivity extends AppCompatActivity {
     private static final int LAYOUT_MODE_GRID = 2;    // 双列模式
     private int currentLayoutMode = LAYOUT_MODE_SINGLE;  // 默认单列
     private ImageButton layoutSwitchButton;
+    
+    // 【第17次修改】卡片曝光追踪
+    private ExposureTracker exposureTracker;
+    
+    // 【第19次修改】曝光事件测试面板
+    private ExposureTestPanel testPanel;
 
     /**
      * onCreate() - Activity 的创建方法
@@ -203,6 +209,10 @@ public class MainActivity extends AppCompatActivity {
         // 【第15次修改】初始加载：为所有分类加载第一页数据
         Log.d(TAG, "准备初始化所有分类数据...");
         loadInitialDataForAllCategories();
+        
+        // 【第17次修改】初始化卡片曝光追踪
+        Log.d(TAG, "准备初始化卡片曝光追踪...");
+        initExposureTracker();
         
         Log.d(TAG, "========== MainActivity onCreate 完成 ==========");
     }
@@ -1067,24 +1077,92 @@ public class MainActivity extends AppCompatActivity {
     }
     
     /**
+     * 【第17次修改】初始化卡片曝光追踪
+     */
+    private void initExposureTracker() {
+        // 【第19次修改】创建并添加测试面板
+        testPanel = new ExposureTestPanel(this);
+        android.widget.FrameLayout testPanelContainer = findViewById(R.id.testPanelContainer);
+        testPanelContainer.addView(testPanel);
+        Log.d(TAG, "✅ 测试面板已创建");
+        
+        // 创建曝光追踪器
+        exposureTracker = new ExposureTracker(recyclerView, newsList);
+        
+        // 设置曝光事件监听器
+        exposureTracker.setExposureEventListener(new ExposureEventListener() {
+            @Override
+            public void onCardAppear(int position, NewsItem newsItem) {
+                Log.i(TAG, String.format("📍 [曝光] 卡片露出 - 位置: %d, 标题: %s", 
+                    position, newsItem.getTitle()));
+                // 【第19次修改】同步到测试面板
+                testPanel.logAppear(position, newsItem.getTitle());
+            }
+            
+            @Override
+            public void onCardHalfVisible(int position, NewsItem newsItem, float visiblePercent) {
+                Log.i(TAG, String.format("📊 [曝光] 卡片50%%可见 - 位置: %d, 标题: %s, 可见度: %.2f%%", 
+                    position, newsItem.getTitle(), visiblePercent * 100));
+                // 【第19次修改】同步到测试面板
+                testPanel.logHalfVisible(position, newsItem.getTitle(), visiblePercent);
+            }
+            
+            @Override
+            public void onCardFullyVisible(int position, NewsItem newsItem) {
+                Log.i(TAG, String.format("✅ [曝光] 卡片完整露出 - 位置: %d, 标题: %s", 
+                    position, newsItem.getTitle()));
+                // 【第19次修改】同步到测试面板
+                testPanel.logFullyVisible(position, newsItem.getTitle());
+            }
+            
+            @Override
+            public void onCardDisappear(int position, NewsItem newsItem) {
+                Log.i(TAG, String.format("👋 [曝光] 卡片消失 - 位置: %d, 标题: %s", 
+                    position, newsItem.getTitle()));
+                // 【第19次修改】同步到测试面板
+                testPanel.logDisappear(position, newsItem.getTitle());
+            }
+        });
+        
+        // 开始追踪
+        exposureTracker.startTracking();
+        
+        Log.d(TAG, "✅ 卡片曝光追踪已启动");
+    }
+    
+    /**
+     * 【第17次修改】Activity生命周期 - onResume
+     * 恢复曝光追踪
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (exposureTracker != null) {
+            exposureTracker.startTracking();
+            Log.d(TAG, "🔄 曝光追踪已恢复");
+        }
+    }
+    
+    /**
+     * 【第17次修改】Activity生命周期 - onPause
+     * 暂停曝光追踪
+     */
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (exposureTracker != null) {
+            exposureTracker.stopTracking();
+            Log.d(TAG, "⏸️ 曝光追踪已暂停");
+        }
+    }
+    
+    /**
      * 其他常用的生命周期方法（可以根据需要重写）：
      * 
      * @Override
      * protected void onStart() {
      *     super.onStart();
      *     // Activity 即将对用户可见时调用
-     * }
-     * 
-     * @Override
-     * protected void onResume() {
-     *     super.onResume();
-     *     // Activity 开始与用户交互时调用
-     * }
-     * 
-     * @Override
-     * protected void onPause() {
-     *     super.onPause();
-     *     // Activity 即将失去焦点时调用（如弹出对话框）
      * }
      * 
      * @Override
