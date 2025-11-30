@@ -3,6 +3,7 @@
 package com.example.demo2.database;
 
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 /**
@@ -95,7 +96,7 @@ public class CachedNews {
     }
     
     /**
-     * 完整构造方法
+     * 带参数构造方法（创建缓存对象时使用）
      * 
      * @param title 新闻标题
      * @param summary 新闻摘要
@@ -104,6 +105,7 @@ public class CachedNews {
      * @param readCount 阅读数
      * @param cacheTime 缓存时间戳
      */
+    @Ignore
     public CachedNews(String title, String summary, String imageUrl, 
                       String publishTime, String readCount, long cacheTime) {
         this.title = title;
@@ -115,7 +117,7 @@ public class CachedNews {
     }
     
     /**
-     * 完整构造方法（包含分类）
+     * 带分类参数的构造方法
      * 
      * @param title 新闻标题
      * @param summary 新闻摘要
@@ -125,6 +127,7 @@ public class CachedNews {
      * @param cacheTime 缓存时间戳
      * @param category 新闻分类
      */
+    @Ignore
     public CachedNews(String title, String summary, String imageUrl, 
                       String publishTime, String readCount, long cacheTime, String category) {
         this.title = title;

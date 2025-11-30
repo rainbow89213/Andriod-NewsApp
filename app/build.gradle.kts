@@ -130,6 +130,12 @@ dependencies {
     implementation("androidx.room:room-runtime:2.6.1")
     annotationProcessor("androidx.room:room-compiler:2.6.1")
     
+    // ViewPager2：Fragment切换组件
+    implementation("androidx.viewpager2:viewpager2:1.0.0")
+    
+    // SwipeRefreshLayout：下拉刷新组件
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    
     // testImplementation：仅在单元测试时需要的依赖
     // JUnit：Java 单元测试框架
     testImplementation(libs.junit)

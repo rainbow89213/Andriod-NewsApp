@@ -22,99 +22,113 @@ INSERT INTO user (username, nickname, avatar, email) VALUES
 ('environment_activist', '环保志愿者王芳', 'https://picsum.photos/100/100?random=7', 'environment@news.com'),
 ('food_blogger', '美食博主李雷', 'https://picsum.photos/100/100?random=8', 'food@news.com');
 
--- 插入科技新闻
-INSERT INTO news (title, summary, image_url, category_id, user_id, read_count, publish_time) VALUES
-('人工智能技术取得重大突破', '最新研究表明，深度学习算法在图像识别领域达到了新的里程碑，准确率提升至99.8%，为自动驾驶和医疗诊断带来新希望。', 'https://picsum.photos/400/200?random=1', 1, 1, 12000, DATE_SUB(NOW(), INTERVAL 2 HOUR)),
-('5G网络覆盖率突破90%', '全国主要城市5G网络覆盖率已突破90%，网络速度和稳定性大幅提升，为物联网和智慧城市建设奠定基础。', 'https://picsum.photos/400/200?random=11', 1, 1, 8500, DATE_SUB(NOW(), INTERVAL 5 HOUR)),
-('量子计算机研发获新进展', '我国科研团队在量子计算机研发方面取得重大突破，量子比特数量达到新高度，计算能力大幅提升。', 'https://picsum.photos/400/200?random=12', 1, 1, 15000, DATE_SUB(NOW(), INTERVAL 1 DAY));
+-- 插入科技新闻（增加到10条）
+INSERT INTO news (title, summary, image_url, image_url_2, image_url_3, media_type, video_url, video_duration, video_cover_url, category_id, user_id, read_count, publish_time) VALUES
+('人工智能技术取得重大突破', '最新研究表明，深度学习算法在图像识别领域达到了新的里程碑，准确率提升至99.8%，为自动驾驶和医疗诊断带来新希望。', 'https://picsum.photos/400/200?random=1', NULL, NULL, 'single_image', NULL, 0, NULL, 1, 1, 12000, DATE_SUB(NOW(), INTERVAL 2 HOUR)),
+('5G网络覆盖率突破90%【多图】', '全国主要城市5G网络覆盖率已突破90%，网络速度和稳定性大幅提升，为物联网和智慧城市建设奠定基础。', 'https://picsum.photos/400/200?random=11', 'https://picsum.photos/400/200?random=111', 'https://picsum.photos/400/200?random=112', 'multi_image', NULL, 0, NULL, 1, 1, 8500, DATE_SUB(NOW(), INTERVAL 5 HOUR)),
+('量子计算机研发获新进展【视频】', '我国科研团队在量子计算机研发方面取得重大突破，量子比特数量达到新高度，计算能力大幅提升。', NULL, NULL, NULL, 'video', 'https://example.com/quantum-video.mp4', 120, 'https://picsum.photos/400/200?random=12', 1, 1, 15000, DATE_SUB(NOW(), INTERVAL 1 DAY)),
+('区块链技术应用落地', '多个行业开始应用区块链技术，供应链管理、金融服务等领域效率大幅提升。', 'https://picsum.photos/400/200?random=13', NULL, NULL, 'single_image', NULL, 0, NULL, 1, 1, 9800, DATE_SUB(NOW(), INTERVAL 3 HOUR)),
+('自动驾驶测试取得突破', 'L4级别自动驾驶车辆在多个城市开始道路测试，安全性和可靠性达到新高度。', 'https://picsum.photos/400/200?random=14', 'https://picsum.photos/400/200?random=141', NULL, 'multi_image', NULL, 0, NULL, 1, 1, 11200, DATE_SUB(NOW(), INTERVAL 6 HOUR)),
+('云计算市场持续增长', '全球云计算市场规模预计今年将突破5000亿美元，企业数字化转型加速。', 'https://picsum.photos/400/200?random=15', NULL, NULL, 'single_image', NULL, 0, NULL, 1, 1, 7600, DATE_SUB(NOW(), INTERVAL 9 HOUR)),
+('物联网设备数量激增', '全球物联网设备连接数突破200亿，智能家居、工业互联网成为主要增长点。', 'https://picsum.photos/400/200?random=16', NULL, NULL, 'single_image', NULL, 0, NULL, 1, 1, 8900, DATE_SUB(NOW(), INTERVAL 12 HOUR)),
+('虚拟现实技术新应用', 'VR技术在教育、医疗、娱乐等领域获得广泛应用，用户体验不断提升。', 'https://picsum.photos/400/200?random=17', 'https://picsum.photos/400/200?random=171', 'https://picsum.photos/400/200?random=172', 'multi_image', NULL, 0, NULL, 1, 1, 10500, DATE_SUB(NOW(), INTERVAL 15 HOUR)),
+('网络安全形势严峻', '全球网络安全事件频发，企业和个人需要加强数据保护意识。', 'https://picsum.photos/400/200?random=18', NULL, NULL, 'single_image', NULL, 0, NULL, 1, 1, 6700, DATE_SUB(NOW(), INTERVAL 18 HOUR)),
+('半导体技术新突破', '新一代芯片制造工艺实现量产，性能提升30%，功耗降低20%。', 'https://picsum.photos/400/200?random=19', NULL, NULL, 'single_image', NULL, 0, NULL, 1, 1, 13400, DATE_SUB(NOW(), INTERVAL 20 HOUR));
 
--- 插入经济新闻
-INSERT INTO news (title, summary, image_url, category_id, user_id, read_count, publish_time) VALUES
-('全球市场迎来复苏信号', '多个国际机构发布报告显示，全球经济正在逐步恢复，预计今年GDP增长率将达到3.5%，消费者信心指数持续上升。', 'https://picsum.photos/400/200?random=2', 2, 2, 86000, DATE_SUB(NOW(), INTERVAL 5 HOUR)),
-('新能源汽车销量创新高', '今年前三季度新能源汽车销量同比增长120%，市场渗透率突破30%，产业链上下游企业业绩普遍向好。', 'https://picsum.photos/400/200?random=21', 2, 2, 45000, DATE_SUB(NOW(), INTERVAL 8 HOUR)),
-('央行降准释放流动性', '央行宣布下调存款准备金率0.5个百分点，预计释放长期资金约5000亿元，支持实体经济发展。', 'https://picsum.photos/400/200?random=22', 2, 2, 67000, DATE_SUB(NOW(), INTERVAL 1 DAY));
+-- 插入经济新闻（增加到10条）
+INSERT INTO news (title, summary, image_url, image_url_2, image_url_3, media_type, video_url, video_duration, video_cover_url, category_id, user_id, read_count, publish_time) VALUES
+('全球市场迎来复苏信号【双图】', '多个国际机构发布报告显示，全球经济正在逐步恢复，预计今年GDP增长率将达到3.5%，消费者信心指数持续上升。', 'https://picsum.photos/400/200?random=2', 'https://picsum.photos/400/200?random=201', NULL, 'multi_image', NULL, 0, NULL, 2, 2, 86000, DATE_SUB(NOW(), INTERVAL 5 HOUR)),
+('新能源汽车销量创新高', '今年前三季度新能源汽车销量同比增长120%，市场渗透率突破30%，产业链上下游企业业绩普遍向好。', 'https://picsum.photos/400/200?random=21', NULL, NULL, 'single_image', NULL, 0, NULL, 2, 2, 45000, DATE_SUB(NOW(), INTERVAL 8 HOUR)),
+('央行降准释放流动性【视频】', '央行宣布下调存款准备金率0.5个百分点，预计释放长期资金约5000亿元，支持实体经济发展。', NULL, NULL, NULL, 'video', 'https://example.com/bank-video.mp4', 90, 'https://picsum.photos/400/200?random=22', 2, 2, 67000, DATE_SUB(NOW(), INTERVAL 1 DAY)),
+('股市创年内新高', 'A股主要指数全线上涨，沪指突破3500点，成交量放大至万亿级别。', 'https://picsum.photos/400/200?random=23', NULL, NULL, 'single_image', NULL, 0, NULL, 2, 2, 54000, DATE_SUB(NOW(), INTERVAL 3 HOUR)),
+('数字货币试点扩大', '数字人民币试点城市增至30个，应用场景不断丰富，交易额持续增长。', 'https://picsum.photos/400/200?random=24', 'https://picsum.photos/400/200?random=241', NULL, 'multi_image', NULL, 0, NULL, 2, 2, 38000, DATE_SUB(NOW(), INTERVAL 6 HOUR)),
+('房地产市场回暖', '一线城市房地产成交量环比上涨15%，市场信心逐步恢复。', 'https://picsum.photos/400/200?random=25', NULL, NULL, 'single_image', NULL, 0, NULL, 2, 2, 61000, DATE_SUB(NOW(), INTERVAL 10 HOUR)),
+('外贸进出口创新高', '前三季度外贸进出口总值同比增长10.2%，贸易顺差持续扩大。', 'https://picsum.photos/400/200?random=26', NULL, NULL, 'single_image', NULL, 0, NULL, 2, 2, 42000, DATE_SUB(NOW(), INTERVAL 12 HOUR)),
+('消费市场持续复苏', '社会消费品零售总额连续6个月正增长，餐饮、旅游业复苏明显。', 'https://picsum.photos/400/200?random=27', 'https://picsum.photos/400/200?random=271', 'https://picsum.photos/400/200?random=272', 'multi_image', NULL, 0, NULL, 2, 2, 49000, DATE_SUB(NOW(), INTERVAL 15 HOUR)),
+('科创板注册制改革深化', '科创板上市公司突破500家，总市值超过8万亿元。', 'https://picsum.photos/400/200?random=28', NULL, NULL, 'single_image', NULL, 0, NULL, 2, 2, 35000, DATE_SUB(NOW(), INTERVAL 18 HOUR)),
+('绿色金融快速发展', '绿色贷款余额突破20万亿元，支持碳中和项目融资规模创新高。', 'https://picsum.photos/400/200?random=29', NULL, NULL, 'single_image', NULL, 0, NULL, 2, 2, 31000, DATE_SUB(NOW(), INTERVAL 20 HOUR));
 
 -- 插入体育新闻
-INSERT INTO news (title, summary, image_url, category_id, user_id, read_count, publish_time) VALUES
-('国足晋级世界杯预选赛下一轮', '在昨晚进行的关键比赛中，国家队以2:1战胜对手，成功晋级世界杯预选赛下一轮，全国球迷欢欣鼓舞。', 'https://picsum.photos/400/200?random=3', 3, 3, 153000, DATE_SUB(NOW(), INTERVAL 8 HOUR)),
-('CBA总决赛精彩对决', '本赛季CBA总决赛进入白热化阶段，两支球队实力相当，比赛悬念迭起，吸引了大量球迷关注。', 'https://picsum.photos/400/200?random=31', 3, 3, 98000, DATE_SUB(NOW(), INTERVAL 12 HOUR)),
-('马拉松赛事圆满举办', '本市举办的国际马拉松赛事吸引了来自50多个国家的选手参赛，赛事组织有序，获得各方好评。', 'https://picsum.photos/400/200?random=32', 3, 3, 34000, DATE_SUB(NOW(), INTERVAL 2 DAY));
+INSERT INTO news (title, summary, image_url, image_url_2, image_url_3, media_type, video_url, video_duration, video_cover_url, category_id, user_id, read_count, publish_time) VALUES
+('国足晋级世界杯预选赛下一轮【三图】', '在昨晚进行的关键比赛中，国家队以2:1战胜对手，成功晋级世界杯预选赛下一轮，全国球迷欢欣鼓舞。', 'https://picsum.photos/400/200?random=3', 'https://picsum.photos/400/200?random=301', 'https://picsum.photos/400/200?random=302', 'multi_image', NULL, 0, NULL, 3, 3, 153000, DATE_SUB(NOW(), INTERVAL 8 HOUR)),
+('CBA总决赛精彩对决【视频】', '本赛季CBA总决赛进入白热化阶段，两支球队实力相当，比赛悬念迭起，吸引了大量球迷关注。', NULL, NULL, NULL, 'video', 'https://example.com/cba-video.mp4', 150, 'https://picsum.photos/400/200?random=31', 3, 3, 98000, DATE_SUB(NOW(), INTERVAL 12 HOUR)),
+('马拉松赛事圆满举办', '本市举办的国际马拉松赛事吸引了来自50多个国家的选手参赛，赛事组织有序，获得各方好评。', 'https://picsum.photos/400/200?random=32', NULL, NULL, 'single_image', NULL, 0, NULL, 3, 3, 34000, DATE_SUB(NOW(), INTERVAL 2 DAY));
 
 -- 插入健康新闻
-INSERT INTO news (title, summary, image_url, category_id, user_id, read_count, publish_time) VALUES
-('专家建议每天运动30分钟', '世界卫生组织最新指南指出，每天至少进行30分钟中等强度运动，可以显著降低心血管疾病风险，提高生活质量。', 'https://picsum.photos/400/200?random=4', 4, 4, 57000, DATE_SUB(NOW(), INTERVAL 12 HOUR)),
-('新型疫苗研发成功', '科研团队成功研发出新型疫苗，临床试验显示有效率达95%以上，为疾病预防提供了新的解决方案。', 'https://picsum.photos/400/200?random=41', 4, 4, 78000, DATE_SUB(NOW(), INTERVAL 1 DAY)),
-('健康饮食指南发布', '营养专家发布最新健康饮食指南，强调均衡营养、适量摄入、多样化饮食的重要性。', 'https://picsum.photos/400/200?random=42', 4, 4, 43000, DATE_SUB(NOW(), INTERVAL 2 DAY));
+INSERT INTO news (title, summary, image_url, image_url_2, image_url_3, media_type, video_url, video_duration, video_cover_url, category_id, user_id, read_count, publish_time) VALUES
+('专家建议每天运动30分钟【视频】', '世界卫生组织最新指南指出，每天至少进行30分钟中等强度运动，可以显著降低心血管疾病风险，提高生活质量。', NULL, NULL, NULL, 'video', 'https://example.com/exercise-video.mp4', 180, 'https://picsum.photos/400/200?random=4', 4, 4, 57000, DATE_SUB(NOW(), INTERVAL 12 HOUR)),
+('新型疫苗研发成功【双图】', '科研团队成功研发出新型疫苗，临床试验显示有效率达95%以上，为疾病预防提供了新的解决方案。', 'https://picsum.photos/400/200?random=41', 'https://picsum.photos/400/200?random=411', NULL, 'multi_image', NULL, 0, NULL, 4, 4, 78000, DATE_SUB(NOW(), INTERVAL 1 DAY)),
+('健康饮食指南发布【三图】', '营养专家发布最新健康饮食指南，强调均衡营养、适量摄入、多样化饮食的重要性。', 'https://picsum.photos/400/200?random=42', 'https://picsum.photos/400/200?random=421', 'https://picsum.photos/400/200?random=422', 'multi_image', NULL, 0, NULL, 4, 4, 43000, DATE_SUB(NOW(), INTERVAL 2 DAY));
 
 -- 插入娱乐新闻
-INSERT INTO news (title, summary, image_url, category_id, user_id, read_count, publish_time) VALUES
-('知名导演新片获国际大奖', '在刚刚结束的国际电影节上，华语导演的最新作品斩获最佳影片奖，这是华语电影在国际舞台上的又一次突破。', 'https://picsum.photos/400/200?random=5', 5, 5, 234000, DATE_SUB(NOW(), INTERVAL 1 DAY)),
-('热门综艺节目收视率创新高', '最新一期综艺节目收视率突破3%，成为本年度收视冠军，节目创新形式获得观众广泛好评。', 'https://picsum.photos/400/200?random=51', 5, 5, 156000, DATE_SUB(NOW(), INTERVAL 1 DAY)),
-('音乐节门票瞬间售罄', '即将举办的大型音乐节门票在开售5分钟内全部售罄，主办方表示将考虑增加场次。', 'https://picsum.photos/400/200?random=52', 5, 5, 89000, DATE_SUB(NOW(), INTERVAL 2 DAY));
+INSERT INTO news (title, summary, image_url, image_url_2, image_url_3, media_type, video_url, video_duration, video_cover_url, category_id, user_id, read_count, publish_time) VALUES
+('知名导演新片获国际大奖【视频】', '在刚刚结束的国际电影节上，华语导演的最新作品斩获最佳影片奖，这是华语电影在国际舞台上的又一次突破。', NULL, NULL, NULL, 'video', 'https://example.com/movie-video.mp4', 210, 'https://picsum.photos/400/200?random=5', 5, 5, 234000, DATE_SUB(NOW(), INTERVAL 1 DAY)),
+('热门综艺节目收视率创新高【三图】', '最新一期综艺节目收视率突破3%，成为本年度收视冠军，节目创新形式获得观众广泛好评。', 'https://picsum.photos/400/200?random=51', 'https://picsum.photos/400/200?random=511', 'https://picsum.photos/400/200?random=512', 'multi_image', NULL, 0, NULL, 5, 5, 156000, DATE_SUB(NOW(), INTERVAL 1 DAY)),
+('音乐节门票瞬间售罄', '即将举办的大型音乐节门票在开售5分钟内全部售罄，主办方表示将考虑增加场次。', 'https://picsum.photos/400/200?random=52', NULL, NULL, 'single_image', NULL, 0, NULL, 5, 5, 89000, DATE_SUB(NOW(), INTERVAL 2 DAY));
 
 -- 插入教育新闻
-INSERT INTO news (title, summary, image_url, category_id, user_id, read_count, publish_time) VALUES
-('在线教育平台用户突破千万', '随着数字化教育的普及，国内领先的在线教育平台宣布注册用户突破1000万，课程覆盖从小学到职业培训的各个领域。', 'https://picsum.photos/400/200?random=6', 6, 6, 42000, DATE_SUB(NOW(), INTERVAL 1 DAY)),
-('高考改革方案公布', '教育部公布新一轮高考改革方案，强调综合素质评价，减轻学生负担，促进全面发展。', 'https://picsum.photos/400/200?random=61', 6, 6, 125000, DATE_SUB(NOW(), INTERVAL 1 DAY)),
-('职业教育迎来发展机遇', '国家出台多项政策支持职业教育发展，产教融合、校企合作成为新趋势。', 'https://picsum.photos/400/200?random=62', 6, 6, 38000, DATE_SUB(NOW(), INTERVAL 3 DAY));
+INSERT INTO news (title, summary, image_url, image_url_2, image_url_3, media_type, video_url, video_duration, video_cover_url, category_id, user_id, read_count, publish_time) VALUES
+('在线教育平台用户突破千万【双图】', '随着数字化教育的普及，国内领先的在线教育平台宣布注册用户突破1000万，课程覆盖从小学到职业培训的各个领域。', 'https://picsum.photos/400/200?random=6', 'https://picsum.photos/400/200?random=601', NULL, 'multi_image', NULL, 0, NULL, 6, 6, 42000, DATE_SUB(NOW(), INTERVAL 1 DAY)),
+('高考改革方案公布【视频】', '教育部公布新一轮高考改革方案，强调综合素质评价，减轻学生负担，促进全面发展。', NULL, NULL, NULL, 'video', 'https://example.com/gaokao-video.mp4', 240, 'https://picsum.photos/400/200?random=61', 6, 6, 125000, DATE_SUB(NOW(), INTERVAL 1 DAY)),
+('职业教育迎来发展机遇【三图】', '国家出台多项政策支持职业教育发展，产教融合、校企合作成为新趋势。', 'https://picsum.photos/400/200?random=62', 'https://picsum.photos/400/200?random=621', 'https://picsum.photos/400/200?random=622', 'multi_image', NULL, 0, NULL, 6, 6, 38000, DATE_SUB(NOW(), INTERVAL 3 DAY));
 
 -- 插入环保新闻
-INSERT INTO news (title, summary, image_url, category_id, user_id, read_count, publish_time) VALUES
-('多地启动碳中和试点项目', '为应对气候变化，全国多个城市启动碳中和试点项目，通过新能源、绿色建筑等措施，力争2030年实现碳达峰目标。', 'https://picsum.photos/400/200?random=7', 7, 7, 68000, DATE_SUB(NOW(), INTERVAL 2 DAY)),
-('垃圾分类成效显著', '实施垃圾分类政策两年来，城市生活垃圾回收利用率提升至45%，环境质量明显改善。', 'https://picsum.photos/400/200?random=71', 7, 7, 52000, DATE_SUB(NOW(), INTERVAL 2 DAY)),
-('湿地保护取得新成果', '国家湿地保护工程实施以来，湿地面积稳步增加，生物多样性得到有效保护。', 'https://picsum.photos/400/200?random=72', 7, 7, 34000, DATE_SUB(NOW(), INTERVAL 3 DAY));
+INSERT INTO news (title, summary, image_url, image_url_2, image_url_3, media_type, video_url, video_duration, video_cover_url, category_id, user_id, read_count, publish_time) VALUES
+('多地启动碳中和试点项目【双图】', '为应对气候变化，全国多个城市启动碳中和试点项目，通过新能源、绿色建筑等措施，力争2030年实现碳达峰目标。', 'https://picsum.photos/400/200?random=7', 'https://picsum.photos/400/200?random=701', NULL, 'multi_image', NULL, 0, NULL, 7, 7, 68000, DATE_SUB(NOW(), INTERVAL 2 DAY)),
+('垃圾分类成效显著【视频】', '实施垃圾分类政策两年来，城市生活垃圾回收利用率提升至45%，环境质量明显改善。', NULL, NULL, NULL, 'video', 'https://example.com/garbage-video.mp4', 160, 'https://picsum.photos/400/200?random=71', 7, 7, 52000, DATE_SUB(NOW(), INTERVAL 2 DAY)),
+('湿地保护取得新成果', '国家湿地保护工程实施以来，湿地面积稳步增加，生物多样性得到有效保护。', 'https://picsum.photos/400/200?random=72', NULL, NULL, 'single_image', NULL, 0, NULL, 7, 7, 34000, DATE_SUB(NOW(), INTERVAL 3 DAY));
 
 -- 插入美食新闻
-INSERT INTO news (title, summary, image_url, category_id, user_id, read_count, publish_time) VALUES
-('网红餐厅排队3小时仍火爆', '位于市中心的一家网红餐厅持续火爆，即使需要排队3小时，食客们依然络绎不绝，招牌菜品更是一位难求。', 'https://picsum.photos/400/200?random=8', 8, 8, 91000, DATE_SUB(NOW(), INTERVAL 2 DAY)),
-('地方特色美食节开幕', '为期一周的地方特色美食节盛大开幕，汇集了全国各地上百种特色小吃，吸引大量游客前来品尝。', 'https://picsum.photos/400/200?random=81', 8, 8, 76000, DATE_SUB(NOW(), INTERVAL 3 DAY)),
-('米其林餐厅榜单发布', '最新米其林餐厅榜单发布，本市新增3家星级餐厅，餐饮业整体水平获得国际认可。', 'https://picsum.photos/400/200?random=82', 8, 8, 105000, DATE_SUB(NOW(), INTERVAL 3 DAY));
+INSERT INTO news (title, summary, image_url, image_url_2, image_url_3, media_type, video_url, video_duration, video_cover_url, category_id, user_id, read_count, publish_time) VALUES
+('网红餐厅排队3小时仍火爆【三图】', '位于市中心的一家网红餐厅持续火爆，即使需要排队3小时，食客们依然络绎不绝，招牌菜品更是一位难求。', 'https://picsum.photos/400/200?random=8', 'https://picsum.photos/400/200?random=801', 'https://picsum.photos/400/200?random=802', 'multi_image', NULL, 0, NULL, 8, 8, 91000, DATE_SUB(NOW(), INTERVAL 2 DAY)),
+('地方特色美食节开幕【视频】', '为期一周的地方特色美食节盛大开幕，汇集了全国各地上百种特色小吃，吸引大量游客前来品尝。', NULL, NULL, NULL, 'video', 'https://example.com/food-festival-video.mp4', 200, 'https://picsum.photos/400/200?random=81', 8, 8, 76000, DATE_SUB(NOW(), INTERVAL 3 DAY)),
+('米其林餐厅榜单发布', '最新米其林餐厅榜单发布，本市新增3家星级餐厅，餐饮业整体水平获得国际认可。', 'https://picsum.photos/400/200?random=82', NULL, NULL, 'single_image', NULL, 0, NULL, 8, 8, 105000, DATE_SUB(NOW(), INTERVAL 3 DAY));
 
 -- 【扩展数据】每个分类添加更多新闻以测试分页功能
--- 科技新闻扩展（再增加12条，总共15条）
-INSERT INTO news (title, summary, image_url, category_id, user_id, read_count, publish_time) VALUES
-('云计算服务市场规模突破千亿', '国内云计算市场持续增长，今年市场规模预计突破千亿元，企业上云成为数字化转型的重要选择。', 'https://picsum.photos/400/200?random=13', 1, 1, 25000, DATE_SUB(NOW(), INTERVAL 3 DAY)),
-('芯片产业迎来突破性进展', '国产芯片在高端制程方面取得重大突破，打破技术封锁，为科技自立自强奠定基础。', 'https://picsum.photos/400/200?random=14', 1, 1, 32000, DATE_SUB(NOW(), INTERVAL 4 DAY)),
-('智能家居市场爆发增长', '智能音箱、智能门锁等智能家居产品销量暴涨，市场规模同比增长65%。', 'https://picsum.photos/400/200?random=15', 1, 1, 18000, DATE_SUB(NOW(), INTERVAL 5 DAY)),
-('新一代操作系统发布', '国产操作系统发布新版本，性能大幅提升，生态建设取得明显进展。', 'https://picsum.photos/400/200?random=16', 1, 1, 28000, DATE_SUB(NOW(), INTERVAL 6 DAY)),
-('虚拟现实技术应用广泛', 'VR/AR技术在教育、医疗、娱乐等领域应用日益广泛，市场前景广阔。', 'https://picsum.photos/400/200?random=17', 1, 1, 22000, DATE_SUB(NOW(), INTERVAL 7 DAY)),
-('区块链技术赋能实体经济', '区块链技术在供应链管理、数字资产等领域展现巨大潜力。', 'https://picsum.photos/400/200?random=18', 1, 1, 19000, DATE_SUB(NOW(), INTERVAL 8 DAY)),
-('物联网设备数量超百亿', '全球物联网设备连接数突破100亿，智慧城市建设加速推进。', 'https://picsum.photos/400/200?random=19', 1, 1, 27000, DATE_SUB(NOW(), INTERVAL 9 DAY)),
-('网络安全投入持续增加', '企业网络安全投入同比增长40%，数据安全和隐私保护受到重视。', 'https://picsum.photos/400/200?random=20', 1, 1, 21000, DATE_SUB(NOW(), INTERVAL 10 DAY)),
-('自动驾驶测试里程创纪录', '自动驾驶汽车测试里程突破千万公里，技术成熟度不断提升。', 'https://picsum.photos/400/200?random=111', 1, 1, 35000, DATE_SUB(NOW(), INTERVAL 11 DAY)),
-('人脸识别技术精度提升', '最新人脸识别算法准确率达到99.9%，应用场景更加广泛。', 'https://picsum.photos/400/200?random=112', 1, 1, 16000, DATE_SUB(NOW(), INTERVAL 12 DAY)),
-('卫星互联网进入商用阶段', '低轨卫星互联网开始商用，偏远地区也能享受高速网络。', 'https://picsum.photos/400/200?random=113', 1, 1, 24000, DATE_SUB(NOW(), INTERVAL 13 DAY)),
-('超级计算机性能再创新高', '我国超级计算机性能排名全球前列，为科研提供强大算力支持。', 'https://picsum.photos/400/200?random=114', 1, 1, 29000, DATE_SUB(NOW(), INTERVAL 14 DAY));
+-- 科技新闻扩展（再增加12条，总共15条，混合不同媒体类型）
+INSERT INTO news (title, summary, image_url, image_url_2, image_url_3, media_type, video_url, video_duration, video_cover_url, category_id, user_id, read_count, publish_time) VALUES
+('云计算服务市场规模突破千亿【多图】', '国内云计算市场持续增长，今年市场规模预计突破千亿元，企业上云成为数字化转型的重要选择。', 'https://picsum.photos/400/200?random=13', 'https://picsum.photos/400/200?random=131', NULL, 'multi_image', NULL, 0, NULL, 1, 1, 25000, DATE_SUB(NOW(), INTERVAL 3 DAY)),
+('芯片产业迎来突破性进展【视频】', '国产芯片在高端制程方面取得重大突破，打破技术封锁，为科技自立自强奠定基础。', NULL, NULL, NULL, 'video', 'https://example.com/chip-video.mp4', 180, 'https://picsum.photos/400/200?random=14', 1, 1, 32000, DATE_SUB(NOW(), INTERVAL 4 DAY)),
+('智能家居市场爆发增长【多图】', '智能音箱、智能门锁等智能家居产品销量暴涨，市场规模同比增长65%。', 'https://picsum.photos/400/200?random=15', 'https://picsum.photos/400/200?random=151', 'https://picsum.photos/400/200?random=152', 'multi_image', NULL, 0, NULL, 1, 1, 18000, DATE_SUB(NOW(), INTERVAL 5 DAY)),
+('新一代操作系统发布', '国产操作系统发布新版本，性能大幅提升，生态建设取得明显进展。', 'https://picsum.photos/400/200?random=16', NULL, NULL, 'single_image', NULL, 0, NULL, 1, 1, 28000, DATE_SUB(NOW(), INTERVAL 6 DAY)),
+('虚拟现实技术应用广泛【视频】', 'VR/AR技术在教育、医疗、娱乐等领域应用日益广泛，市场前景广阔。', NULL, NULL, NULL, 'video', 'https://example.com/vr-video.mp4', 240, 'https://picsum.photos/400/200?random=17', 1, 1, 22000, DATE_SUB(NOW(), INTERVAL 7 DAY)),
+('区块链技术赋能实体经济', '区块链技术在供应链管理、数字资产等领域展现巨大潜力。', 'https://picsum.photos/400/200?random=18', NULL, NULL, 'single_image', NULL, 0, NULL, 1, 1, 19000, DATE_SUB(NOW(), INTERVAL 8 DAY)),
+('物联网设备数量超百亿【多图】', '全球物联网设备连接数突破100亿，智慧城市建设加速推进。', 'https://picsum.photos/400/200?random=19', 'https://picsum.photos/400/200?random=191', NULL, 'multi_image', NULL, 0, NULL, 1, 1, 27000, DATE_SUB(NOW(), INTERVAL 9 DAY)),
+('网络安全投入持续增加', '企业网络安全投入同比增长40%，数据安全和隐私保护受到重视。', 'https://picsum.photos/400/200?random=20', NULL, NULL, 'single_image', NULL, 0, NULL, 1, 1, 21000, DATE_SUB(NOW(), INTERVAL 10 DAY)),
+('自动驾驶测试里程创纪录【视频】', '自动驾驶汽车测试里程突破千万公里，技术成熟度不断提升。', NULL, NULL, NULL, 'video', 'https://example.com/auto-drive.mp4', 150, 'https://picsum.photos/400/200?random=111', 1, 1, 35000, DATE_SUB(NOW(), INTERVAL 11 DAY)),
+('人脸识别技术精度提升', '最新人脸识别算法准确率达到99.9%，应用场景更加广泛。', 'https://picsum.photos/400/200?random=112', NULL, NULL, 'single_image', NULL, 0, NULL, 1, 1, 16000, DATE_SUB(NOW(), INTERVAL 12 DAY)),
+('卫星互联网进入商用阶段【多图】', '低轨卫星互联网开始商用，偏远地区也能享受高速网络。', 'https://picsum.photos/400/200?random=113', 'https://picsum.photos/400/200?random=1131', 'https://picsum.photos/400/200?random=1132', 'multi_image', NULL, 0, NULL, 1, 1, 24000, DATE_SUB(NOW(), INTERVAL 13 DAY)),
+('超级计算机性能再创新高', '我国超级计算机性能排名全球前列，为科研提供强大算力支持。', 'https://picsum.photos/400/200?random=114', NULL, NULL, 'single_image', NULL, 0, NULL, 1, 1, 29000, DATE_SUB(NOW(), INTERVAL 14 DAY));
 
--- 经济新闻扩展（再增加12条，总共15条）
-INSERT INTO news (title, summary, image_url, category_id, user_id, read_count, publish_time) VALUES
-('跨境电商交易额再创新高', '今年跨境电商交易额预计突破2万亿元，成为外贸新增长点。', 'https://picsum.photos/400/200?random=23', 2, 2, 52000, DATE_SUB(NOW(), INTERVAL 2 DAY)),
-('消费市场持续复苏', '国庆假期消费数据显示市场活力强劲，餐饮、旅游等行业全面回暖。', 'https://picsum.photos/400/200?random=24', 2, 2, 48000, DATE_SUB(NOW(), INTERVAL 3 DAY)),
-('房地产市场趋于稳定', '多地房价保持平稳，市场预期逐步回归理性，长效机制发挥作用。', 'https://picsum.photos/400/200?random=25', 2, 2, 61000, DATE_SUB(NOW(), INTERVAL 4 DAY)),
-('外资企业持续看好中国市场', '今年前三季度外资投资额同比增长15%，显示国际资本对中国市场信心。', 'https://picsum.photos/400/200?random=26', 2, 2, 38000, DATE_SUB(NOW(), INTERVAL 5 DAY)),
-('数字货币试点稳步推进', '数字人民币试点城市扩大，应用场景日益丰富，交易量持续增长。', 'https://picsum.photos/400/200?random=27', 2, 2, 44000, DATE_SUB(NOW(), INTERVAL 6 DAY)),
-('制造业PMI重回扩张区间', '官方制造业PMI指数升至51.2，表明制造业景气度回升。', 'https://picsum.photos/400/200?random=28', 2, 2, 36000, DATE_SUB(NOW(), INTERVAL 7 DAY)),
-('绿色金融规模快速增长', '绿色信贷、绿色债券等产品规模突破15万亿元，支持绿色发展。', 'https://picsum.photos/400/200?random=29', 2, 2, 29000, DATE_SUB(NOW(), INTERVAL 8 DAY)),
-('民营经济发展环境持续优化', '多项政策措施支持民营企业发展，营商环境不断改善。', 'https://picsum.photos/400/200?random=210', 2, 2, 42000, DATE_SUB(NOW(), INTERVAL 9 DAY)),
-('国际贸易总额逆势增长', '前三季度进出口总额同比增长8%，贸易结构进一步优化。', 'https://picsum.photos/400/200?random=211', 2, 2, 51000, DATE_SUB(NOW(), INTERVAL 10 DAY)),
-('税收优惠政策助力企业发展', '新一轮减税降费政策落地，预计为企业减负超万亿元。', 'https://picsum.photos/400/200?random=212', 2, 2, 33000, DATE_SUB(NOW(), INTERVAL 11 DAY)),
-('资本市场改革深化', '注册制改革全面推开，多层次资本市场体系不断完善。', 'https://picsum.photos/400/200?random=213', 2, 2, 47000, DATE_SUB(NOW(), INTERVAL 12 DAY)),
-('居民收入稳步增长', '前三季度居民人均可支配收入同比增长6.5%，消费能力增强。', 'https://picsum.photos/400/200?random=214', 2, 2, 55000, DATE_SUB(NOW(), INTERVAL 13 DAY));
+-- 经济新闻扩展（再增加12条，总共15条，混合不同媒体类型）
+INSERT INTO news (title, summary, image_url, image_url_2, image_url_3, media_type, video_url, video_duration, video_cover_url, category_id, user_id, read_count, publish_time) VALUES
+('跨境电商交易额再创新高【多图】', '今年跨境电商交易额预计突破2万亿元，成为外贸新增长点。', 'https://picsum.photos/400/200?random=23', 'https://picsum.photos/400/200?random=231', NULL, 'multi_image', NULL, 0, NULL, 2, 2, 52000, DATE_SUB(NOW(), INTERVAL 2 DAY)),
+('消费市场持续复苏【视频】', '国庆假期消费数据显示市场活力强劲，餐饮、旅游等行业全面回暖。', NULL, NULL, NULL, 'video', 'https://example.com/consume-video.mp4', 120, 'https://picsum.photos/400/200?random=24', 2, 2, 48000, DATE_SUB(NOW(), INTERVAL 3 DAY)),
+('房地产市场趋于稳定', '多地房价保持平稳，市场预期逐步回归理性，长效机制发挥作用。', 'https://picsum.photos/400/200?random=25', NULL, NULL, 'single_image', NULL, 0, NULL, 2, 2, 61000, DATE_SUB(NOW(), INTERVAL 4 DAY)),
+('外资企业持续看好中国市场【多图】', '今年前三季度外资投资额同比增长15%，显示国际资本对中国市场信心。', 'https://picsum.photos/400/200?random=26', 'https://picsum.photos/400/200?random=261', 'https://picsum.photos/400/200?random=262', 'multi_image', NULL, 0, NULL, 2, 2, 38000, DATE_SUB(NOW(), INTERVAL 5 DAY)),
+('数字货币试点稳步推进', '数字人民币试点城市扩大，应用场景日益丰富，交易量持续增长。', 'https://picsum.photos/400/200?random=27', NULL, NULL, 'single_image', NULL, 0, NULL, 2, 2, 44000, DATE_SUB(NOW(), INTERVAL 6 DAY)),
+('制造业PMI重回扩张区间【视频】', '官方制造业PMI指数升至51.2，表明制造业景气度回升。', NULL, NULL, NULL, 'video', 'https://example.com/pmi-video.mp4', 90, 'https://picsum.photos/400/200?random=28', 2, 2, 36000, DATE_SUB(NOW(), INTERVAL 7 DAY)),
+('绿色金融规模快速增长', '绿色信贷、绿色债券等产品规模突破15万亿元，支持绿色发展。', 'https://picsum.photos/400/200?random=29', NULL, NULL, 'single_image', NULL, 0, NULL, 2, 2, 29000, DATE_SUB(NOW(), INTERVAL 8 DAY)),
+('民营经济发展环境持续优化【多图】', '多项政策措施支持民营企业发展，营商环境不断改善。', 'https://picsum.photos/400/200?random=210', 'https://picsum.photos/400/200?random=2101', NULL, 'multi_image', NULL, 0, NULL, 2, 2, 42000, DATE_SUB(NOW(), INTERVAL 9 DAY)),
+('国际贸易总额逆势增长', '前三季度进出口总额同比增长8%，贸易结构进一步优化。', 'https://picsum.photos/400/200?random=211', NULL, NULL, 'single_image', NULL, 0, NULL, 2, 2, 51000, DATE_SUB(NOW(), INTERVAL 10 DAY)),
+('税收优惠政策助力企业发展【视频】', '新一轮减税降费政策落地，预计为企业减负超万亿元。', NULL, NULL, NULL, 'video', 'https://example.com/tax-video.mp4', 180, 'https://picsum.photos/400/200?random=212', 2, 2, 33000, DATE_SUB(NOW(), INTERVAL 11 DAY)),
+('资本市场改革深化', '注册制改革全面推开，多层次资本市场体系不断完善。', 'https://picsum.photos/400/200?random=213', NULL, NULL, 'single_image', NULL, 0, NULL, 2, 2, 47000, DATE_SUB(NOW(), INTERVAL 12 DAY)),
+('居民收入稳步增长【多图】', '前三季度居民人均可支配收入同比增长6.5%，消费能力增强。', 'https://picsum.photos/400/200?random=214', 'https://picsum.photos/400/200?random=2141', 'https://picsum.photos/400/200?random=2142', 'multi_image', NULL, 0, NULL, 2, 2, 55000, DATE_SUB(NOW(), INTERVAL 13 DAY));
 
--- 体育新闻扩展（再增加12条，总共15条）
-INSERT INTO news (title, summary, image_url, category_id, user_id, read_count, publish_time) VALUES
-('奥运选手刷新世界纪录', '在国际田径赛事中，我国选手刷新100米短跑世界纪录，成为亚洲之光。', 'https://picsum.photos/400/200?random=33', 3, 3, 125000, DATE_SUB(NOW(), INTERVAL 3 DAY)),
-('全运会圆满落幕', '第十四届全国运动会圆满闭幕，各代表团奖牌榜竞争激烈。', 'https://picsum.photos/400/200?random=34', 3, 3, 87000, DATE_SUB(NOW(), INTERVAL 4 DAY)),
-('冬奥会筹备工作进展顺利', '冬奥会场馆建设全部完工，各项测试赛有序进行。', 'https://picsum.photos/400/200?random=35', 3, 3, 92000, DATE_SUB(NOW(), INTERVAL 5 DAY)),
-('青少年足球联赛启动', '覆盖全国的青少年足球联赛正式启动，助力足球人才培养。', 'https://picsum.photos/400/200?random=36', 3, 3, 54000, DATE_SUB(NOW(), INTERVAL 6 DAY)),
-('游泳队斩获多枚金牌', '世界游泳锦标赛上，中国队表现出色，斩获多枚金牌。', 'https://picsum.photos/400/200?random=37', 3, 3, 78000, DATE_SUB(NOW(), INTERVAL 7 DAY)),
-('网球公开赛精彩纷呈', '本年度网球公开赛吸引全球顶尖选手参赛，比赛精彩纷呈。', 'https://picsum.photos/400/200?random=38', 3, 3, 61000, DATE_SUB(NOW(), INTERVAL 8 DAY)),
-('电竞产业规模破千亿', '电子竞技产业持续火爆，市场规模突破千亿元大关。', 'https://picsum.photos/400/200?random=39', 3, 3, 115000, DATE_SUB(NOW(), INTERVAL 9 DAY)),
-('羽毛球世锦赛夺冠', '中国羽毛球队在世锦赛上包揽多项冠军，展现强大实力。', 'https://picsum.photos/400/200?random=310', 3, 3, 69000, DATE_SUB(NOW(), INTERVAL 10 DAY)),
-('马术比赛首次落户中国', '国际顶级马术赛事首次在中国举办，推动马术运动发展。', 'https://picsum.photos/400/200?random=311', 3, 3, 42000, DATE_SUB(NOW(), INTERVAL 11 DAY)),
-('自行车赛事吸引万人参与', '城市自行车赛吸引上万名骑行爱好者参与，倡导绿色出行。', 'https://picsum.photos/400/200?random=312', 3, 3, 38000, DATE_SUB(NOW(), INTERVAL 12 DAY)),
-('滑雪场迎来客流高峰', '随着冬季来临，各大滑雪场迎来客流高峰，冰雪运动持续升温。', 'https://picsum.photos/400/200?random=313', 3, 3, 71000, DATE_SUB(NOW(), INTERVAL 13 DAY)),
-('拳击赛事引发热议', '职业拳击赛事精彩对决，吸引大量拳击爱好者关注。', 'https://picsum.photos/400/200?random=314', 3, 3, 55000, DATE_SUB(NOW(), INTERVAL 14 DAY));
+-- 体育新闻扩展（再增加12条，总共15条，混合不同媒体类型）
+INSERT INTO news (title, summary, image_url, image_url_2, image_url_3, media_type, video_url, video_duration, video_cover_url, category_id, user_id, read_count, publish_time) VALUES
+('奥运选手刷新世界纪录【视频】', '在国际田径赛事中，我国选手刷新100米短跑世界纪录，成为亚洲之光。', NULL, NULL, NULL, 'video', 'https://example.com/olympic-video.mp4', 120, 'https://picsum.photos/400/200?random=33', 3, 3, 125000, DATE_SUB(NOW(), INTERVAL 3 DAY)),
+('全运会圆满落幕【多图】', '第十四届全国运动会圆满闭幕，各代表团奖牌榜竞争激烈。', 'https://picsum.photos/400/200?random=34', 'https://picsum.photos/400/200?random=341', NULL, 'multi_image', NULL, 0, NULL, 3, 3, 87000, DATE_SUB(NOW(), INTERVAL 4 DAY)),
+('冬奥会筹备工作进展顺利', '冬奥会场馆建设全部完工，各项测试赛有序进行。', 'https://picsum.photos/400/200?random=35', NULL, NULL, 'single_image', NULL, 0, NULL, 3, 3, 92000, DATE_SUB(NOW(), INTERVAL 5 DAY)),
+('青少年足球联赛启动【多图】', '覆盖全国的青少年足球联赛正式启动，助力足球人才培养。', 'https://picsum.photos/400/200?random=36', 'https://picsum.photos/400/200?random=361', 'https://picsum.photos/400/200?random=362', 'multi_image', NULL, 0, NULL, 3, 3, 54000, DATE_SUB(NOW(), INTERVAL 6 DAY)),
+('游泳队斩获多枚金牌【视频】', '世界游泳锦标赛上，中国队表现出色，斩获多枚金牌。', NULL, NULL, NULL, 'video', 'https://example.com/swim-video.mp4', 180, 'https://picsum.photos/400/200?random=37', 3, 3, 78000, DATE_SUB(NOW(), INTERVAL 7 DAY)),
+('网球公开赛精彩纷呈', '本年度网球公开赛吸引全球顶尖选手参赛，比赛精彩纷呈。', 'https://picsum.photos/400/200?random=38', NULL, NULL, 'single_image', NULL, 0, NULL, 3, 3, 61000, DATE_SUB(NOW(), INTERVAL 8 DAY)),
+('电竞产业规模破千亿【多图】', '电子竞技产业持续火爆，市场规模突破千亿元大关。', 'https://picsum.photos/400/200?random=39', 'https://picsum.photos/400/200?random=391', NULL, 'multi_image', NULL, 0, NULL, 3, 3, 115000, DATE_SUB(NOW(), INTERVAL 9 DAY)),
+('羽毛球世锦赛夺冠【视频】', '中国羽毛球队在世锦赛上包揽多项冠军，展现强大实力。', NULL, NULL, NULL, 'video', 'https://example.com/badminton-video.mp4', 150, 'https://picsum.photos/400/200?random=310', 3, 3, 69000, DATE_SUB(NOW(), INTERVAL 10 DAY)),
+('马术比赛首次落户中国', '国际顶级马术赛事首次在中国举办，推动马术运动发展。', 'https://picsum.photos/400/200?random=311', NULL, NULL, 'single_image', NULL, 0, NULL, 3, 3, 42000, DATE_SUB(NOW(), INTERVAL 11 DAY)),
+('自行车赛事吸引万人参与【多图】', '城市自行车赛吸引上万名骑行爱好者参与，倡导绿色出行。', 'https://picsum.photos/400/200?random=312', 'https://picsum.photos/400/200?random=3121', NULL, 'multi_image', NULL, 0, NULL, 3, 3, 38000, DATE_SUB(NOW(), INTERVAL 12 DAY)),
+('滑雪场迎来客流高峰', '随着冬季来临，各大滑雪场迎来客流高峰，冰雪运动持续升温。', 'https://picsum.photos/400/200?random=313', NULL, NULL, 'single_image', NULL, 0, NULL, 3, 3, 71000, DATE_SUB(NOW(), INTERVAL 13 DAY)),
+('拳击赛事引发热议【视频】', '职业拳击赛事精彩对决，吸引大量拳击爱好者关注。', NULL, NULL, NULL, 'video', 'https://example.com/boxing-video.mp4', 200, 'https://picsum.photos/400/200?random=314', 3, 3, 55000, DATE_SUB(NOW(), INTERVAL 14 DAY));
 
 -- 健康新闻扩展（再增加12条，总共15条）
 INSERT INTO news (title, summary, image_url, category_id, user_id, read_count, publish_time) VALUES

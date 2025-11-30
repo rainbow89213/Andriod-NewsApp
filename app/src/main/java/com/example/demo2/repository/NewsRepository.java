@@ -57,7 +57,7 @@ public class NewsRepository {
     // ==================== 构造方法 ====================
     
     /**
-     * 构造方法
+     * 构造方法（完整版）
      * 
      * @param context 上下文对象
      * @param newsDao 新闻 DAO
@@ -67,6 +67,20 @@ public class NewsRepository {
         this.context = context;
         this.newsDao = newsDao;
         this.apiService = apiService;
+    }
+    
+    /**
+     * 简化构造方法（自动初始化依赖）
+     * 
+     * @param context 上下文对象
+     */
+    public NewsRepository(Context context) {
+        this.context = context;
+        // 初始化数据库
+        AppDatabase database = AppDatabase.getInstance(context);
+        this.newsDao = database.newsDao();
+        // 初始化API服务
+        this.apiService = com.example.demo2.api.ApiClient.getNewsApiService();
     }
     
     // ==================== 本地缓存操作 ====================
@@ -360,6 +374,84 @@ public class NewsRepository {
          * @param errorMsg 错误信息
          */
         void onFailure(String errorMsg);
+    }
+    
+    /**
+     * 新闻数据回调接口（为Fragment使用）
+     */
+    public interface NewsCallback {
+        void onSuccess(List<NewsItem> newsItems);
+        void onError(String error);
+    }
+    
+    /**
+     * 获取分类新闻列表（为Fragment提供）
+     * 
+     * @param category 分类代码（all, tech, economy, sports等）
+     * @param offset 偏移量（用于分页）
+     * @param limit 每页数量
+     * @param callback 回调接口
+     */
+    public void getNewsList(String category, int offset, int limit, NewsCallback callback) {
+        Log.d(TAG, "📱 获取新闻列表 - 分类: " + category + ", offset: " + offset + ", limit: " + limit);
+        
+        // 根据分类选择API（移除"all"的处理）
+        Call<List<NewsItem>> call;
+        if (category == null || category.isEmpty()) {
+            // 如果没有分类，获取所有新闻
+            call = apiService.getNewsList(offset, limit);
+        } else {
+            // 有具体分类，获取该分类的新闻
+            call = apiService.getNewsListByCategory(category, offset, limit);
+        }
+        
+        // 执行网络请求
+        call.enqueue(new retrofit2.Callback<List<NewsItem>>() {
+            @Override
+            public void onResponse(Call<List<NewsItem>> call, retrofit2.Response<List<NewsItem>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<NewsItem> newsItems = response.body();
+                    Log.d(TAG, "✅ 获取成功: " + newsItems.size() + " 条新闻");
+                    
+                    // 为每个新闻项设置分类名称
+                    for (NewsItem item : newsItems) {
+                        if (item.getCategoryName() == null && category != null) {
+                            item.setCategoryName(getCategoryDisplayName(category));
+                        }
+                    }
+                    
+                    callback.onSuccess(newsItems);
+                } else {
+                    String error = "获取失败: " + response.code();
+                    Log.e(TAG, error);
+                    callback.onError(error);
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<List<NewsItem>> call, Throwable t) {
+                String error = "网络错误: " + t.getMessage();
+                Log.e(TAG, error, t);
+                callback.onError(error);
+            }
+        });
+    }
+    
+    /**
+     * 获取分类显示名称
+     */
+    private String getCategoryDisplayName(String categoryCode) {
+        switch (categoryCode) {
+            case "tech": return "科技";
+            case "economy": return "经济";
+            case "sports": return "体育";
+            case "health": return "健康";
+            case "entertainment": return "娱乐";
+            case "education": return "教育";
+            case "environment": return "环保";
+            case "food": return "美食";
+            default: return "其他";
+        }
     }
     
     // ==================== 工具方法 ====================

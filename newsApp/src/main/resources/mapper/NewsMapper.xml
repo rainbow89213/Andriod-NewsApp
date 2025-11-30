@@ -11,6 +11,12 @@
         <result property="summary" column="summary"/>
         <result property="content" column="content"/>
         <result property="imageUrl" column="image_url"/>
+        <result property="imageUrl2" column="image_url_2"/>
+        <result property="imageUrl3" column="image_url_3"/>
+        <result property="mediaType" column="media_type"/>
+        <result property="videoUrl" column="video_url"/>
+        <result property="videoDuration" column="video_duration"/>
+        <result property="videoCoverUrl" column="video_cover_url"/>
         <result property="categoryId" column="category_id"/>
         <result property="userId" column="user_id"/>
         <result property="readCount" column="read_count"/>
@@ -42,6 +48,12 @@
             n.summary,
             n.content,
             n.image_url,
+            n.image_url_2,
+            n.image_url_3,
+            n.media_type,
+            n.video_url,
+            n.video_duration,
+            n.video_cover_url,
             n.category_id,
             n.user_id,
             n.read_count,
@@ -75,6 +87,12 @@
             n.summary,
             n.content,
             n.image_url,
+            n.image_url_2,
+            n.image_url_3,
+            n.media_type,
+            n.video_url,
+            n.video_duration,
+            n.video_cover_url,
             n.category_id,
             n.user_id,
             n.read_count,
