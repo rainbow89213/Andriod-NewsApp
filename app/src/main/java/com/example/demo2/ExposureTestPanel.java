@@ -7,6 +7,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -20,7 +21,7 @@ import java.util.Locale;
  * 
  * 用于在APP内实时显示和测试曝光事件的准确性
  */
-public class ExposureTestPanel extends LinearLayout {
+public class ExposureTestPanel extends FrameLayout {
     
     private static final String TAG = "ExposureTestPanel";
     
@@ -30,7 +31,8 @@ public class ExposureTestPanel extends LinearLayout {
     private ScrollView logScrollView;  // 日志滚动视图
     private Button toggleButton;       // 展开/收起按钮
     private Button clearButton;        // 清除日志按钮
-    private LinearLayout contentPanel; // 内容面板
+    private LinearLayout fullPanel;    // 完整面板
+    private Button floatingButton;     // 浮动按钮
     
     // 统计数据
     private int appearCount = 0;       // 露出次数
@@ -39,7 +41,7 @@ public class ExposureTestPanel extends LinearLayout {
     private int disappearCount = 0;    // 消失次数
     
     // 状态
-    private boolean isExpanded = true; // 是否展开
+    private boolean isExpanded = false; // 是否展开（默认收起）
     
     // 时间格式化
     private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault());
@@ -53,30 +55,66 @@ public class ExposureTestPanel extends LinearLayout {
      * 初始化面板
      */
     private void init() {
-        setOrientation(VERTICAL);
-        setBackgroundColor(Color.parseColor("#E8F5E9")); // 浅绿色背景
-        setPadding(dpToPx(12), dpToPx(8), dpToPx(12), dpToPx(8));
-        
         // 设置布局参数
-        LayoutParams params = new LayoutParams(
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
+            ViewGroup.LayoutParams.MATCH_PARENT
         );
         setLayoutParams(params);
         
-        // 创建顶部栏（标题 + 按钮）
-        createTopBar();
+        // 创建完整面板
+        createFullPanel();
         
-        // 创建内容面板
-        createContentPanel();
+        // 创建浮动按钮
+        createFloatingButton();
+        
+        // 初始状态：收起（只显示浮动按钮）
+        fullPanel.setVisibility(GONE);
+        floatingButton.setVisibility(VISIBLE);
     }
     
     /**
-     * 创建顶部栏
+     * 创建浮动按钮（右下角）
      */
-    private void createTopBar() {
+    private void createFloatingButton() {
+        floatingButton = new Button(getContext());
+        floatingButton.setText("📊");
+        floatingButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+        floatingButton.setBackgroundColor(Color.parseColor("#4CAF50"));
+        floatingButton.setTextColor(Color.WHITE);
+        floatingButton.setOnClickListener(v -> togglePanel());
+        
+        // 设置为圆形按钮（通过padding）
+        int size = dpToPx(56); // FAB标准尺寸
+        floatingButton.setPadding(0, 0, 0, 0);
+        
+        // 定位到右下角
+        FrameLayout.LayoutParams floatParams = new FrameLayout.LayoutParams(size, size);
+        floatParams.gravity = Gravity.BOTTOM | Gravity.END;
+        floatParams.setMargins(0, 0, dpToPx(16), dpToPx(16));
+        
+        addView(floatingButton, floatParams);
+    }
+    
+    /**
+     * 创建完整面板
+     */
+    private void createFullPanel() {
+        fullPanel = new LinearLayout(getContext());
+        fullPanel.setOrientation(LinearLayout.VERTICAL);
+        fullPanel.setBackgroundColor(Color.parseColor("#E8F5E9")); // 浅绿色背景
+        fullPanel.setPadding(dpToPx(12), dpToPx(8), dpToPx(12), dpToPx(8));
+        
+        // 定位到底部
+        FrameLayout.LayoutParams fullParams = new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        fullParams.gravity = Gravity.BOTTOM;
+        
+        // 创建顶部栏
         LinearLayout topBar = new LinearLayout(getContext());
-        topBar.setOrientation(HORIZONTAL);
+        topBar.setOrientation(LinearLayout.HORIZONTAL);
         topBar.setGravity(Gravity.CENTER_VERTICAL);
         
         // 标题
@@ -104,7 +142,7 @@ public class ExposureTestPanel extends LinearLayout {
         clearParams.setMargins(dpToPx(4), 0, dpToPx(4), 0);
         topBar.addView(clearButton, clearParams);
         
-        // 展开/收起按钮
+        // 收起按钮
         toggleButton = new Button(getContext());
         toggleButton.setText("收起");
         toggleButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
@@ -117,15 +155,7 @@ public class ExposureTestPanel extends LinearLayout {
         );
         topBar.addView(toggleButton, toggleParams);
         
-        addView(topBar);
-    }
-    
-    /**
-     * 创建内容面板
-     */
-    private void createContentPanel() {
-        contentPanel = new LinearLayout(getContext());
-        contentPanel.setOrientation(VERTICAL);
+        fullPanel.addView(topBar);
         
         // 统计信息
         statsText = new TextView(getContext());
@@ -133,7 +163,7 @@ public class ExposureTestPanel extends LinearLayout {
         statsText.setTextColor(Color.parseColor("#1B5E20"));
         statsText.setPadding(0, dpToPx(8), 0, dpToPx(8));
         updateStats();
-        contentPanel.addView(statsText);
+        fullPanel.addView(statsText);
         
         // 分割线
         View divider = new View(getContext());
@@ -142,7 +172,7 @@ public class ExposureTestPanel extends LinearLayout {
             ViewGroup.LayoutParams.MATCH_PARENT, dpToPx(1)
         );
         dividerParams.setMargins(0, dpToPx(4), 0, dpToPx(8));
-        contentPanel.addView(divider, dividerParams);
+        fullPanel.addView(divider, dividerParams);
         
         // 日志标题
         TextView logTitle = new TextView(getContext());
@@ -150,7 +180,7 @@ public class ExposureTestPanel extends LinearLayout {
         logTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
         logTitle.setTextColor(Color.parseColor("#2E7D32"));
         logTitle.setPadding(0, 0, 0, dpToPx(4));
-        contentPanel.addView(logTitle);
+        fullPanel.addView(logTitle);
         
         // 日志文本
         logText = new TextView(getContext());
@@ -166,9 +196,9 @@ public class ExposureTestPanel extends LinearLayout {
         LinearLayout.LayoutParams scrollParams = new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, dpToPx(200)
         );
-        contentPanel.addView(logScrollView, scrollParams);
+        fullPanel.addView(logScrollView, scrollParams);
         
-        addView(contentPanel);
+        addView(fullPanel, fullParams);
     }
     
     /**
@@ -270,8 +300,15 @@ public class ExposureTestPanel extends LinearLayout {
      */
     private void togglePanel() {
         isExpanded = !isExpanded;
-        contentPanel.setVisibility(isExpanded ? VISIBLE : GONE);
-        toggleButton.setText(isExpanded ? "收起" : "展开");
+        if (isExpanded) {
+            // 展开：显示完整面板，隐藏浮动按钮
+            fullPanel.setVisibility(VISIBLE);
+            floatingButton.setVisibility(GONE);
+        } else {
+            // 收起：隐藏完整面板，显示浮动按钮
+            fullPanel.setVisibility(GONE);
+            floatingButton.setVisibility(VISIBLE);
+        }
     }
     
     /**

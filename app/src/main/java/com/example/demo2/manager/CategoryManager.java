@@ -82,6 +82,7 @@ public class CategoryManager {
                 selectCategory(categoryCode);
                 if (categoryChangeListener != null) {
                     categoryChangeListener.onCategoryChanged(categoryCode);
+                    Log.d(TAG, "🔄 分类切换完成，当前分类: " + (categoryCode == null ? "[全部]" : categoryCode));
                 }
             });
             
@@ -89,7 +90,7 @@ public class CategoryManager {
             categoryTabs.add(tab);
         }
         
-        // 默认选中"全部"
+        // 默认选中[全部]
         if (!categoryTabs.isEmpty()) {
             selectCategoryTab(categoryTabs.get(0));
         }
@@ -127,7 +128,7 @@ public class CategoryManager {
      */
     public void selectCategory(String categoryCode) {
         currentCategory = categoryCode;
-        Log.d(TAG, "📑 切换到分类: " + (categoryCode == null ? "全部" : categoryCode));
+        Log.d(TAG, "📑 切换到分类: " + (categoryCode == null ? "[全部]" : categoryCode));
         
         // 更新所有标签的选中状态
         String[] categoryCodes = {

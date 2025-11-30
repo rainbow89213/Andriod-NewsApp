@@ -78,6 +78,14 @@ public class CachedNews {
      */
     private long cacheTime;
     
+    /**
+     * 新闻分类
+     * 
+     * 例如："tech"（科技）、"economy"（经济）、"sports"（体育）等
+     * null 表示属于"全部"分类
+     */
+    private String category;
+    
     // ==================== 构造方法 ====================
     
     /**
@@ -104,6 +112,28 @@ public class CachedNews {
         this.publishTime = publishTime;
         this.readCount = readCount;
         this.cacheTime = cacheTime;
+    }
+    
+    /**
+     * 完整构造方法（包含分类）
+     * 
+     * @param title 新闻标题
+     * @param summary 新闻摘要
+     * @param imageUrl 图片URL
+     * @param publishTime 发布时间
+     * @param readCount 阅读数
+     * @param cacheTime 缓存时间戳
+     * @param category 新闻分类
+     */
+    public CachedNews(String title, String summary, String imageUrl, 
+                      String publishTime, String readCount, long cacheTime, String category) {
+        this.title = title;
+        this.summary = summary;
+        this.imageUrl = imageUrl;
+        this.publishTime = publishTime;
+        this.readCount = readCount;
+        this.cacheTime = cacheTime;
+        this.category = category;
     }
     
     // ==================== Getter 和 Setter 方法 ====================
@@ -165,6 +195,14 @@ public class CachedNews {
         this.cacheTime = cacheTime;
     }
     
+    public String getCategory() {
+        return category;
+    }
+    
+    public void setCategory(String category) {
+        this.category = category;
+    }
+    
     // ==================== 辅助方法 ====================
     
     /**
@@ -194,6 +232,7 @@ public class CachedNews {
                 ", publishTime='" + publishTime + '\'' +
                 ", readCount='" + readCount + '\'' +
                 ", cacheTime=" + cacheTime +
+                ", category='" + category + '\'' +
                 '}';
     }
 }

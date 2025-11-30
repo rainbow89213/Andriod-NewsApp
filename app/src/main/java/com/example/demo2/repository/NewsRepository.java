@@ -107,7 +107,49 @@ public class NewsRepository {
     }
     
     /**
-     * 保存新闻到本地缓存
+     * 根据分类从本地缓存获取新闻
+     * 
+     * 注意：必须在子线程调用
+     * 
+     * @param category 分类代码（tech, economy, sports 等），null 表示所有分类
+     * @param limit 最多返回多少条
+     * @return 指定分类的缓存新闻列表
+     * 
+     * 使用示例：
+     * new Thread(() -> {
+     *     List<CachedNews> techNews = repository.getCachedNewsByCategory("tech", 10);
+     *     runOnUiThread(() -> {
+     *         // 更新 UI
+     *     });
+     * }).start();
+     */
+    public List<CachedNews> getCachedNewsByCategory(String category, int limit) {
+        Log.d(TAG, "📖 从本地缓存读取新闻，分类=" + category + ", limit=" + limit);
+        
+        try {
+            List<CachedNews> cachedNews;
+            if (category == null) {
+                // 查询所有分类
+                cachedNews = newsDao.getAllCachedNews(limit);
+            } else {
+                // 查询指定分类
+                cachedNews = newsDao.getCachedNewsByCategory(category, limit);
+            }
+            Log.d(TAG, "✅ 缓存读取成功，共 " + cachedNews.size() + " 条");
+            
+            // 清理过期缓存
+            cleanExpiredCache();
+            
+            return cachedNews;
+        } catch (Exception e) {
+            Log.e(TAG, "❌ 缓存读取失败：" + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+    
+    /**
+     * 保存新闻到本地缓存（不指定分类）
      * 
      * 注意：必须在子线程调用
      * 
@@ -119,7 +161,24 @@ public class NewsRepository {
      * }).start();
      */
     public void cacheNews(List<NewsItem> newsItems) {
-        Log.d(TAG, "💾 保存新闻到本地缓存，共 " + newsItems.size() + " 条");
+        cacheNews(newsItems, null);
+    }
+    
+    /**
+     * 保存新闻到本地缓存（指定分类）
+     * 
+     * 注意：必须在子线程调用
+     * 
+     * @param newsItems 要缓存的新闻列表
+     * @param category 新闻分类（tech, economy, sports 等），null 表示全部分类
+     * 
+     * 使用示例：
+     * new Thread(() -> {
+     *     repository.cacheNews(newsItems, "tech");
+     * }).start();
+     */
+    public void cacheNews(List<NewsItem> newsItems, String category) {
+        Log.d(TAG, "💾 保存新闻到本地缓存，分类=" + category + ", 共 " + newsItems.size() + " 条");
         
         try {
             // 转换为 CachedNews 对象
@@ -133,7 +192,8 @@ public class NewsRepository {
                     item.getImageUrl(),
                     item.getPublishTime(),
                     item.getReadCount(),
-                    currentTime  // 设置缓存时间为当前时间
+                    currentTime,  // 设置缓存时间为当前时间
+                    category      // 设置分类
                 );
                 cachedNewsList.add(cachedNews);
             }

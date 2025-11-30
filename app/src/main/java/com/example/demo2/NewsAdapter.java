@@ -98,8 +98,11 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void setShowLoadMore(boolean show) {
         android.util.Log.d("NewsAdapter", "⚙️ setShowLoadMore: " + showLoadMore + " → " + show);
         this.showLoadMore = show;
-        notifyDataSetChanged();
-        android.util.Log.d("NewsAdapter", "  → notifyDataSetChanged() 已调用");
+        // 使用Handler延迟到下一帧执行，避免在滚动回调中修改数据
+        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+            notifyDataSetChanged();
+            android.util.Log.d("NewsAdapter", "  → notifyDataSetChanged() 已调用");
+        });
     }
     
     /**
@@ -107,7 +110,10 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      */
     public void setHasMoreData(boolean hasMore) {
         this.hasMoreData = hasMore;
-        notifyDataSetChanged();
+        // 使用Handler延迟到下一帧执行，避免在滚动回调中修改数据
+        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+            notifyDataSetChanged();
+        });
     }
     
     /**
@@ -115,7 +121,25 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      */
     public void setLoading(boolean loading) {
         this.isLoading = loading;
-        notifyDataSetChanged();
+        // 使用Handler延迟到下一帧执行，避免在滚动回调中修改数据
+        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+            notifyDataSetChanged();
+        });
+    }
+    
+    /**
+     * 设置加载状态（支持更多参数）
+     * 
+     * @param loading 是否正在加载
+     * @param hasMore 是否还有更多数据
+     */
+    public void setLoadingState(boolean loading, boolean hasMore) {
+        this.isLoading = loading;
+        this.hasMoreData = hasMore;
+        // 使用Handler延迟到下一帧执行，避免在滚动回调中修改数据
+        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+            notifyDataSetChanged();
+        });
     }
     
     /**
@@ -192,7 +216,7 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 newsReadCount.setText(newsItem.getReadCount());
             }
             
-            // 【第16次修改】设置可选的View（网格布局中不存在）
+            // 设置可选的View（网格布局中不存在）
             if (newsSummary != null) {
                 newsSummary.setText(newsItem.getSummary());
             }
@@ -208,7 +232,7 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     Toast.LENGTH_SHORT).show();
             });
             
-            // 【第12次修改】设置长按删除事件
+            // 设置长按删除事件
             itemView.setOnLongClickListener(v -> {
                 if (deleteListener != null) {
                     // 显示删除确认对话框
@@ -238,53 +262,33 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
      */
     public static class LoadMoreViewHolder extends RecyclerView.ViewHolder {
         TextView loadMoreText;
+        android.widget.ProgressBar loadingProgressBar;
         
         public LoadMoreViewHolder(@NonNull View itemView) {
             super(itemView);
             loadMoreText = itemView.findViewById(R.id.loadMoreText);
+            loadingProgressBar = itemView.findViewById(R.id.loadingProgressBar);
         }
         
         public void bind(OnLoadMoreClickListener listener, boolean hasMoreData, boolean isLoading) {
             android.util.Log.d("NewsAdapter", "🔧 LoadMoreViewHolder.bind 被调用");
             android.util.Log.d("NewsAdapter", "  - hasMoreData: " + hasMoreData);
             android.util.Log.d("NewsAdapter", "  - isLoading: " + isLoading);
-            android.util.Log.d("NewsAdapter", "  - listener: " + (listener != null ? "已设置" : "null"));
             
-            if (isLoading) {
-                // 【第13次修改】正在加载，显示"加载中..."
-                android.util.Log.d("NewsAdapter", "  → 显示：加载中...");
+            if (hasMoreData) {
+                // 有更多数据时，始终显示加载动画（无论是否正在加载）
+                android.util.Log.d("NewsAdapter", "  → 显示：加载动画（自动加载模式）");
+                loadingProgressBar.setVisibility(android.view.View.VISIBLE);
                 loadMoreText.setText("加载中...");
                 loadMoreText.setTextColor(0xFF999999);  // 灰色
-                loadMoreText.setClickable(false);
-                itemView.setOnClickListener(null);
-            } else if (hasMoreData) {
-                // 还有更多数据，显示"点击加载更多"
-                android.util.Log.d("NewsAdapter", "  → 显示：点击加载更多（蓝色，可点击）");
-                loadMoreText.setText("点击加载更多");
-                loadMoreText.setTextColor(0xFF2196F3);  // 蓝色
-                
-                // 【修复】同时在TextView和itemView上设置点击监听
-                android.view.View.OnClickListener clickListener = v -> {
-                    android.util.Log.d("NewsAdapter", "🔘🔘🔘 加载更多卡片被点击了！🔘🔘🔘");
-                    if (listener != null) {
-                        android.util.Log.d("NewsAdapter", "  → 调用listener.onLoadMoreClick()");
-                        listener.onLoadMoreClick();
-                    } else {
-                        android.util.Log.e("NewsAdapter", "  ❌ listener是null！");
-                    }
-                };
-                
-                loadMoreText.setOnClickListener(clickListener);
-                itemView.setOnClickListener(clickListener);
-                loadMoreText.setClickable(true);
-                itemView.setClickable(true);
+                loadMoreText.setVisibility(android.view.View.VISIBLE);
             } else {
                 // 没有更多数据，显示"已加载全部数据"
-                android.util.Log.d("NewsAdapter", "  → 显示：已加载全部数据（灰色，不可点击）");
+                android.util.Log.d("NewsAdapter", "  → 显示：已加载全部数据");
+                loadingProgressBar.setVisibility(android.view.View.GONE);
                 loadMoreText.setText("已加载全部数据");
                 loadMoreText.setTextColor(0xFF999999);  // 灰色
-                loadMoreText.setClickable(false);
-                itemView.setOnClickListener(null);
+                loadMoreText.setVisibility(android.view.View.VISIBLE);
             }
         }
     }
@@ -305,14 +309,14 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             return VIEW_TYPE_LOAD_MORE;
         }
         
-        // 【第18次修改】检查是否有单卡片样式覆盖
+        // 检查是否有单卡片样式覆盖
         if (cardStyleOverrides.containsKey(position)) {
             int overrideType = cardStyleOverrides.get(position);
             android.util.Log.d("NewsAdapter", "  → 返回：单卡片覆盖样式 = " + overrideType);
             return overrideType;
         }
         
-        // 【第16次修改】网格模式使用简洁布局
+        // 网格模式使用简洁布局
         if (isGridMode) {
             android.util.Log.d("NewsAdapter", "  → 返回：网格卡片（简洁版）");
             return VIEW_TYPE_NEWS_GRID;
@@ -344,7 +348,7 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 return new NewsViewHolder(horizontalView);
                 
             case VIEW_TYPE_NEWS_GRID:
-                // 【第16次修改】网格布局（简洁版）
+                // 网格布局
                 View gridView = inflater.inflate(R.layout.item_news_card_grid, parent, false);
                 return new NewsViewHolder(gridView);
                 
@@ -372,7 +376,7 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             NewsItem newsItem = newsList.get(position);
             ((NewsViewHolder) holder).bind(newsItem, deleteListener, position, this);
         } else if (holder instanceof LoadMoreViewHolder) {
-            // 【第13次修改】加载更多卡片，传递isLoading状态
+            // 加载更多卡片，传递isLoading状态
             android.util.Log.d("NewsAdapter", "  → 绑定加载更多卡片");
             android.util.Log.d("NewsAdapter", "     showLoadMore: " + showLoadMore);
             android.util.Log.d("NewsAdapter", "     hasMoreData: " + hasMoreData);
@@ -414,7 +418,7 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
     
     /**
-     * 【第18次修改】显示卡片样式选择菜单
+     * 显示卡片样式选择菜单
      */
     public void showCardStyleMenu(android.view.View anchor, int position) {
         android.widget.PopupMenu popupMenu = new android.widget.PopupMenu(anchor.getContext(), anchor);
@@ -422,7 +426,7 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         // 添加菜单项
         popupMenu.getMenu().add(0, VIEW_TYPE_NEWS_VERTICAL, 0, "垂直卡片样式");
         popupMenu.getMenu().add(0, VIEW_TYPE_NEWS_HORIZONTAL, 1, "横向卡片样式");
-        popupMenu.getMenu().add(0, VIEW_TYPE_NEWS_GRID, 2, "网格卡片样式（简洁）");
+        popupMenu.getMenu().add(0, VIEW_TYPE_NEWS_GRID, 2, "网格卡片样式");
         popupMenu.getMenu().add(0, -1, 3, "恢复默认样式");
         
         // 设置菜单项点击事件

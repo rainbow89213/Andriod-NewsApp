@@ -126,13 +126,17 @@ public class MainActivityRefactored extends AppCompatActivity {
         recyclerView.setAdapter(newsAdapter);
         recyclerView.setHasFixedSize(true);
         
+        // 初始化加载更多卡片状态
+        newsAdapter.setShowLoadMore(true);
+        newsAdapter.setHasMoreData(true);
+        
         // 设置删除监听
         newsAdapter.setOnItemDeleteListener(position -> {
             if (position >= 0 && position < newsList.size()) {
                 NewsItem deletedItem = newsList.get(position);
                 newsList.remove(position);
                 newsAdapter.notifyItemRemoved(position);
-                Toast.makeText(this, "已删除：" + deletedItem.getTitle(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "已删除: " + deletedItem.getTitle(), Toast.LENGTH_SHORT).show();
             }
         });
         
@@ -147,7 +151,7 @@ public class MainActivityRefactored extends AppCompatActivity {
         categoryManager = new CategoryManager(this, categoryContainer);
         categoryManager.initCategoryTabs();
         categoryManager.setOnCategoryChangeListener(category -> {
-            Log.d(TAG, "📑 分类切换: " + (category == null ? "全部" : category));
+            Log.d(TAG, "📑 分类切换: " + (category == null ? "[全部]" : category));
             newsDataManager.switchCategory(category);
         });
         
@@ -155,7 +159,7 @@ public class MainActivityRefactored extends AppCompatActivity {
         layoutModeManager = new LayoutModeManager(this, recyclerView, newsAdapter, layoutSwitchButton);
         layoutModeManager.initLayoutSwitchButton();
         layoutModeManager.setOnLayoutModeChangeListener(newMode -> {
-            Log.d(TAG, "🔄 布局模式切换: " + (newMode == LayoutModeManager.LAYOUT_MODE_GRID ? "双列" : "单列"));
+            Log.d(TAG, "🔄 布局模式切换: " + (newMode == LayoutModeManager.LAYOUT_MODE_GRID ? "[双列]" : "[单列]"));
         });
         
         // 3. 初始化数据管理器
@@ -175,11 +179,19 @@ public class MainActivityRefactored extends AppCompatActivity {
             public void onLoadError(String message) {
                 Log.e(TAG, "❌ 数据加载失败: " + message);
                 Toast.makeText(MainActivityRefactored.this, "加载失败: " + message, Toast.LENGTH_SHORT).show();
+                // 加载失败时也要重置自动加载标志
+                if (scrollManager != null) {
+                    scrollManager.resetAutoLoadFlag();
+                }
             }
             
             @Override
             public void onLoadComplete() {
                 Log.d(TAG, "🏁 数据加载完成");
+                // 加载完成后重置自动加载标志
+                if (scrollManager != null) {
+                    scrollManager.resetAutoLoadFlag();
+                }
             }
         });
         
@@ -198,6 +210,40 @@ public class MainActivityRefactored extends AppCompatActivity {
             String currentCategory = categoryManager.getCurrentCategory();
             newsDataManager.refreshCurrentCategory(currentCategory);
         });
+        
+        // 设置自动加载监听器
+        Log.d(TAG, "🔧 设置自动加载监听器...");
+        scrollManager.setOnAutoLoadListener(new ScrollManager.OnAutoLoadListener() {
+            @Override
+            public void onAutoLoad() {
+                Log.d(TAG, "📤 自动加载触发 - MainActivityRefactored.onAutoLoad()");
+                String currentCategory = categoryManager.getCurrentCategory();
+                Log.d(TAG, "  - 当前分类: " + (currentCategory == null ? "[全部]" : currentCategory));
+                Log.d(TAG, "  - 调用newsDataManager.loadMoreNews()");
+                newsDataManager.loadMoreNews(currentCategory);
+            }
+            
+            @Override
+            public boolean hasMoreData() {
+                boolean result = newsDataManager.hasMoreData();
+                Log.d(TAG, "📊 hasMoreData() 返回: " + result);
+                return result;
+            }
+            
+            @Override
+            public boolean isLoadingMore() {
+                boolean result = newsDataManager.isLoadingMore();
+                Log.d(TAG, "📊 isLoadingMore() 返回: " + result);
+                return result;
+            }
+            
+            @Override
+            public void setLoading(boolean loading) {
+                Log.d(TAG, "⚙️ setLoading(" + loading + ")");
+                newsAdapter.setLoading(loading);
+            }
+        });
+        Log.d(TAG, "✅ 自动加载监听器设置完成");
         
         // 5. 初始化曝光管理器
         exposureManager = new ExposureManager(this, recyclerView, newsList);

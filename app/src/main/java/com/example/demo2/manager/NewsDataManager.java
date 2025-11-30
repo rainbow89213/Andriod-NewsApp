@@ -69,6 +69,9 @@ public class NewsDataManager {
     private boolean isLoadingMore = false;
     private boolean isRefreshing = false;
     
+    // 当前分类
+    private String currentCategory = null;
+    
     // 数据加载监听器
     private OnDataLoadListener dataLoadListener;
     
@@ -101,15 +104,19 @@ public class NewsDataManager {
     public void loadInitialDataForAllCategories() {
         Log.d(TAG, "========== 开始初始化所有分类数据 ==========");
         
-        // 先加载"全部"分类（汇总所有分类的第一页）
+        // 初始化为[全部]分类
+        currentCategory = null;
+        Log.d(TAG, "✅ 初始化currentCategory = null（[全部]分类）");
+        
+        // 先加载[全部]分类（汇总所有分类的第一页）
         loadAllCategoriesSummary();
     }
     
     /**
-     * 加载"全部"分类数据（汇总所有分类）
+     * 加载[全部]分类数据（汇总所有分类）
      */
     private void loadAllCategoriesSummary() {
-        Log.d(TAG, "🔄 开始加载"全部"分类数据...");
+        Log.d(TAG, "🔄 开始加载[全部]分类数据...");
         
         if (dataLoadListener != null) {
             dataLoadListener.onLoadStart();
@@ -132,7 +139,8 @@ public class NewsDataManager {
                         // 保存分类数据
                         categoryDataMap.put(category, new ArrayList<>(categoryNews));
                         categoryOffsetMap.put(category, PAGE_SIZE);
-                        categoryHasMoreMap.put(category, !categoryNews.isEmpty());
+                        // 如果返回的数据量等于PAGE_SIZE，说明可能还有更多数据
+                        categoryHasMoreMap.put(category, categoryNews.size() >= PAGE_SIZE);
                     }
                     
                     loadedCount[0]++;
@@ -140,6 +148,22 @@ public class NewsDataManager {
                     // 所有分类加载完成
                     if (loadedCount[0] == totalCategories) {
                         updateUIWithData(allNews);
+                        
+                        // 显示加载更多卡片
+                        if (newsAdapter != null && !allNews.isEmpty()) {
+                            // [全部]分类：只要有一个分类有更多数据就显示
+                            boolean hasMoreAny = false;
+                            for (Boolean hasMore : categoryHasMoreMap.values()) {
+                                if (hasMore != null && hasMore) {
+                                    hasMoreAny = true;
+                                    break;
+                                }
+                            }
+                            newsAdapter.setShowLoadMore(true);
+                            newsAdapter.setHasMoreData(hasMoreAny);
+                            Log.d(TAG, "[全部]分类初始加载: " + allNews.size() + " 条，还有更多: " + hasMoreAny);
+                        }
+                        
                         if (dataLoadListener != null) {
                             dataLoadListener.onLoadSuccess(allNews.size());
                             dataLoadListener.onLoadComplete();
@@ -172,7 +196,7 @@ public class NewsDataManager {
      */
     public void loadCategoryData(String category, int offset, int limit, 
                                  Callback<List<NewsItem>> callback) {
-        Call<List<NewsItem>> call = apiService.getNewsByCategory(category, offset, limit);
+        Call<List<NewsItem>> call = apiService.getNewsListByCategory(category, offset, limit);
         call.enqueue(callback);
     }
     
@@ -180,10 +204,13 @@ public class NewsDataManager {
      * 切换分类
      */
     public void switchCategory(String category) {
-        Log.d(TAG, "🔄 切换到分类: " + (category == null ? "全部" : category));
+        Log.d(TAG, "🔄 切换到分类: " + (category == null ? "[全部]" : category));
+        
+        // 更新当前分类
+        currentCategory = category;
         
         if (category == null) {
-            // 切换到"全部"分类
+            // 切换到[全部]分类
             loadAllCategoriesSummary();
         } else {
             // 切换到具体分类
@@ -191,6 +218,28 @@ public class NewsDataManager {
                 // 如果已有缓存数据，直接显示
                 List<NewsItem> cachedData = categoryDataMap.get(category);
                 updateUIWithData(cachedData);
+                
+                // 设置加载更多卡片的状态
+                if (newsAdapter != null) {
+                    Boolean hasMore = categoryHasMoreMap.get(category);
+                    boolean hasMoreValue = hasMore != null ? hasMore : true;
+                    newsAdapter.setShowLoadMore(true);
+                    newsAdapter.setHasMoreData(hasMoreValue);
+                    Log.d(TAG, "显示缓存分类 " + category + ": " + cachedData.size() + " 条，还有更多: " + hasMoreValue);
+                    
+                    // 如果数据正好是PAGE_SIZE且还有更多，自动触发加载
+                    if (cachedData.size() == PAGE_SIZE && hasMoreValue) {
+                        Log.d(TAG, "缓存数据正好" + PAGE_SIZE + "条，1秒后自动加载更多");
+                        // 延迟一下执行，让UI先更新
+                        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                            if (!isLoadingMore) {
+                                Log.d(TAG, "自动触发加载更多（分类切换后）");
+                                // 使用currentCategory而不是传入的category
+                                loadMoreNews(currentCategory);
+                            }
+                        }, 1000); // 延迟1秒
+                    }
+                }
             } else {
                 // 否则加载新数据
                 loadSingleCategory(category);
@@ -216,9 +265,30 @@ public class NewsDataManager {
                     // 保存数据
                     categoryDataMap.put(category, new ArrayList<>(categoryNews));
                     categoryOffsetMap.put(category, PAGE_SIZE);
-                    categoryHasMoreMap.put(category, !categoryNews.isEmpty());
+                    // 如果返回的数据量等于PAGE_SIZE，说明可能还有更多数据
+                    categoryHasMoreMap.put(category, categoryNews.size() >= PAGE_SIZE);
                     
                     updateUIWithData(categoryNews);
+                    
+                    // 显示加载更多卡片
+                    if (newsAdapter != null && !categoryNews.isEmpty()) {
+                        boolean hasMore = categoryNews.size() >= PAGE_SIZE;
+                        newsAdapter.setShowLoadMore(true);
+                        newsAdapter.setHasMoreData(hasMore);
+                        Log.d(TAG, "初始加载分类 " + category + ": " + categoryNews.size() + " 条，还有更多: " + hasMore);
+                        
+                        // 如果初始数据等于PAGE_SIZE，说明可能还有更多，自动触发加载
+                        if (categoryNews.size() == PAGE_SIZE && hasMore) {
+                            Log.d(TAG, "初始数据正好" + PAGE_SIZE + "条，可能还有更多，1秒后自动加载");
+                            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                                if (!isLoadingMore) {
+                                    Log.d(TAG, "自动触发加载更多（初始加载后）");
+                                    // 直接调用，传入当前分类
+                                    loadMoreNews(currentCategory);
+                                }
+                            }, 1000);
+                        }
+                    }
                     
                     if (dataLoadListener != null) {
                         dataLoadListener.onLoadSuccess(categoryNews.size());
@@ -242,30 +312,40 @@ public class NewsDataManager {
      * 加载更多数据
      */
     public void loadMoreNews(String currentCategory) {
+        Log.d(TAG, "📥 loadMoreNews被调用");
+        Log.d(TAG, "  - 当前分类: " + (currentCategory == null ? "[全部]" : currentCategory));
+        Log.d(TAG, "  - isLoadingMore: " + isLoadingMore);
+        
         if (isLoadingMore) {
-            Log.d(TAG, "⚠️ 正在加载中，请稍候...");
+            Log.d(TAG, "⚠️ 正在加载中，拒绝重复请求");
             return;
         }
         
         isLoadingMore = true;
+        Log.d(TAG, "✅ 设置isLoadingMore = true");
         
         if (newsAdapter != null) {
             newsAdapter.setLoadingState(true, true);
+            Log.d(TAG, "✅ 设置adapter为加载状态");
+        } else {
+            Log.e(TAG, "❌ newsAdapter为null!");
         }
         
         Log.d(TAG, "========== 开始加载更多 ==========");
         
         if (currentCategory == null) {
-            // "全部"分类 - 继续加载各分类数据
+            Log.d(TAG, "🔄 准备加载[全部]分类的更多数据");
+            // [全部]分类 - 继续加载各分类数据
             loadMoreForAllCategories();
         } else {
+            Log.d(TAG, "🔄 准备加载[" + currentCategory + "]分类的更多数据");
             // 具体分类 - 加载该分类的更多数据
             loadMoreForCategory(currentCategory);
         }
     }
     
     /**
-     * 为"全部"分类加载更多
+     * 为[全部]分类加载更多
      */
     private void loadMoreForAllCategories() {
         // 简化：只加载第一个还有数据的分类
@@ -282,23 +362,30 @@ public class NewsDataManager {
         if (newsAdapter != null) {
             newsAdapter.setLoadingState(false, false);
         }
-        Toast.makeText(context, "没有更多数据了", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "❌ [全部]分类没有更多数据了");
     }
     
     /**
-     * 为指定分类加载更多
+     * 为具体分类加载更多
      */
     private void loadMoreForCategory(String category) {
+        Log.d(TAG, "📌 loadMoreForCategory: " + category);
+        
         Integer offset = categoryOffsetMap.get(category);
         if (offset == null) offset = 0;
         
+        Log.d(TAG, "  - 当前offset: " + offset);
+        Log.d(TAG, "  - 将请求: offset=" + offset + ", limit=" + PAGE_SIZE);
+        
         final int currentOffset = offset;
         
+        Log.d(TAG, "🌐 调用loadCategoryData发起网络请求...");
         loadCategoryData(category, currentOffset, PAGE_SIZE, new Callback<List<NewsItem>>() {
             @Override
             public void onResponse(@NonNull Call<List<NewsItem>> call, 
                                   @NonNull Response<List<NewsItem>> response) {
                 isLoadingMore = false;
+                Log.d(TAG, "📡 收到服务器响应");
                 
                 if (response.isSuccessful() && response.body() != null) {
                     List<NewsItem> moreNews = response.body();
@@ -310,13 +397,22 @@ public class NewsDataManager {
                         
                         // 更新状态
                         categoryOffsetMap.put(category, currentOffset + PAGE_SIZE);
-                        categoryHasMoreMap.put(category, true);
+                        // 如果返回的数据量小于PAGE_SIZE，说明没有更多了
+                        boolean hasMore = moreNews.size() >= PAGE_SIZE;
+                        categoryHasMoreMap.put(category, hasMore);
                         
                         if (newsAdapter != null) {
-                            newsAdapter.setLoadingState(false, true);
+                            newsAdapter.setLoadingState(false, hasMore);
+                            newsAdapter.setHasMoreData(hasMore);
                         }
                         
-                        Log.d(TAG, "✅ 加载更多成功: " + moreNews.size() + " 条");
+                        Log.d(TAG, "✅ 加载更多成功: " + moreNews.size() + " 条，还有更多: " + hasMore);
+                        
+                        // 触发成功回调
+                        if (dataLoadListener != null) {
+                            dataLoadListener.onLoadSuccess(moreNews.size());
+                            dataLoadListener.onLoadComplete();
+                        }
                     } else {
                         // 没有更多数据
                         categoryHasMoreMap.put(category, false);
@@ -324,17 +420,50 @@ public class NewsDataManager {
                             newsAdapter.setLoadingState(false, false);
                         }
                         Toast.makeText(context, "没有更多数据了", Toast.LENGTH_SHORT).show();
+                        
+                        // 触发完成回调
+                        if (dataLoadListener != null) {
+                            dataLoadListener.onLoadComplete();
+                        }
+                    }
+                } else {
+                    Log.e(TAG, "❌ 响应不成功或body为null");
+                    Log.e(TAG, "  - 响应码: " + response.code());
+                    Log.e(TAG, "  - 响应消息: " + response.message());
+                    
+                    isLoadingMore = false;
+                    if (newsAdapter != null) {
+                        newsAdapter.setLoadingState(false, true);
+                    }
+                    
+                    // 触发错误回调
+                    if (dataLoadListener != null) {
+                        dataLoadListener.onLoadError("响应码: " + response.code());
+                        dataLoadListener.onLoadComplete();
                     }
                 }
             }
             
             @Override
             public void onFailure(@NonNull Call<List<NewsItem>> call, @NonNull Throwable t) {
+                Log.e(TAG, "❌❌❌ 网络请求失败！");
+                Log.e(TAG, "  - 错误类型: " + t.getClass().getName());
+                Log.e(TAG, "  - 错误消息: " + t.getMessage());
+                Log.e(TAG, "  - URL: " + call.request().url());
+                t.printStackTrace();
+                
                 isLoadingMore = false;
-                Log.e(TAG, "❌ 加载更多失败: " + t.getMessage());
+                Log.d(TAG, "✅ 已重置isLoadingMore = false");
                 
                 if (newsAdapter != null) {
                     newsAdapter.setLoadingState(false, true);
+                    Log.d(TAG, "✅ 已恢复adapter状态");
+                }
+                
+                // 触发加载完成回调，重置自动加载标志
+                if (dataLoadListener != null) {
+                    dataLoadListener.onLoadError(t.getMessage());
+                    dataLoadListener.onLoadComplete();
                 }
                 
                 Toast.makeText(context, "加载失败: " + t.getMessage(), 
@@ -403,6 +532,36 @@ public class NewsDataManager {
      */
     public boolean isLoading() {
         return isLoadingMore || isRefreshing;
+    }
+    
+    /**
+     * 判断是否正在加载更多
+     */
+    public boolean isLoadingMore() {
+        return isLoadingMore;
+    }
+    
+    /**
+     * 判断是否还有更多数据
+     */
+    public boolean hasMoreData() {
+        // 根据当前分类判断是否有更多数据
+        if (currentCategory == null) {
+            // [全部]分类：检查是否所有分类都有更多数据
+            // 只要有一个分类有更多数据，就返回true
+            for (Boolean hasMore : categoryHasMoreMap.values()) {
+                if (hasMore != null && hasMore) {
+                    return true;
+                }
+            }
+            // 如果map是空的，默认返回true（初始状态）
+            return categoryHasMoreMap.isEmpty();
+        } else {
+            // 具体分类：检查该分类是否有更多数据
+            Boolean hasMore = categoryHasMoreMap.get(currentCategory);
+            // 如果还没有加载过（null），默认返回true
+            return hasMore == null || hasMore;
+        }
     }
     
     /**

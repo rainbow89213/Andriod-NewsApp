@@ -36,6 +36,9 @@ public class ExposureTracker extends RecyclerView.OnScrollListener {
     // 每个位置的曝光状态
     private final Map<Integer, ExposureState> exposureStateMap = new HashMap<>();
     
+    // 是否正在追踪
+    private boolean isTracking = false;
+    
     public ExposureTracker(RecyclerView recyclerView, List<NewsItem> newsList) {
         this.recyclerView = recyclerView;
         this.newsList = newsList;
@@ -52,9 +55,30 @@ public class ExposureTracker extends RecyclerView.OnScrollListener {
      * 开始追踪
      */
     public void startTracking() {
-        recyclerView.addOnScrollListener(this);
-        // 初始检查一次（处理已经可见的卡片）
-        checkExposure();
+        if (!isTracking) {
+            recyclerView.addOnScrollListener(this);
+            isTracking = true;
+            // 初始检查一次（处理已经可见的卡片）
+            checkExposure();
+        }
+    }
+    
+    /**
+     * 暂停追踪
+     */
+    public void pauseTracking() {
+        isTracking = false;
+    }
+    
+    /**
+     * 恢复追踪
+     */
+    public void resumeTracking() {
+        if (!isTracking) {
+            isTracking = true;
+            // 恢复时检查一次
+            checkExposure();
+        }
     }
     
     /**
@@ -63,6 +87,7 @@ public class ExposureTracker extends RecyclerView.OnScrollListener {
     public void stopTracking() {
         recyclerView.removeOnScrollListener(this);
         exposureStateMap.clear();
+        isTracking = false;
     }
     
     @Override
@@ -75,7 +100,7 @@ public class ExposureTracker extends RecyclerView.OnScrollListener {
      * 检查所有可见卡片的曝光情况
      */
     private void checkExposure() {
-        if (listener == null || newsList == null || newsList.isEmpty()) {
+        if (!isTracking || listener == null || newsList == null || newsList.isEmpty()) {
             return;
         }
         

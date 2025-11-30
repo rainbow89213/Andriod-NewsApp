@@ -6,7 +6,10 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import android.os.Handler;
+import android.os.Looper;
 
 /**
  * ScrollManager - 滚动管理器
@@ -44,11 +47,28 @@ public class ScrollManager {
     // 下拉刷新监听器
     private OnPullRefreshListener pullRefreshListener;
     
+    // 自动加载相关变量
+    private Handler autoLoadHandler = new Handler(Looper.getMainLooper());
+    private Runnable autoLoadRunnable = null;
+    private boolean isAutoLoadTriggered = false;
+    private static final int AUTO_LOAD_DELAY = 2000;  // 2秒延迟
+    private OnAutoLoadListener autoLoadListener;
+    
     /**
      * 下拉刷新监听接口
      */
     public interface OnPullRefreshListener {
         void onPullRefresh();
+    }
+    
+    /**
+     * 自动加载监听接口
+     */
+    public interface OnAutoLoadListener {
+        void onAutoLoad();
+        boolean hasMoreData();
+        boolean isLoadingMore();
+        void setLoading(boolean loading);
     }
     
     /**
@@ -155,12 +175,15 @@ public class ScrollManager {
             }
         });
         
-        // 监听RecyclerView滚动，同步更新滚动条位置
+        // 监听RecyclerView滚动，同步更新滚动条位置和自动加载检测
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 updateScrollbarPosition();
+                
+                // 检测自动加载
+                checkAndTriggerAutoLoad();
             }
         });
         
@@ -223,5 +246,134 @@ public class ScrollManager {
      */
     public void setOnPullRefreshListener(OnPullRefreshListener listener) {
         this.pullRefreshListener = listener;
+    }
+    
+    /**
+     * 设置自动加载监听器
+     */
+    public void setOnAutoLoadListener(OnAutoLoadListener listener) {
+        this.autoLoadListener = listener;
+    }
+    
+    /**
+     * 检测并触发自动加载
+     */
+    private void checkAndTriggerAutoLoad() {
+        if (autoLoadListener == null) {
+            Log.w(TAG, "❌ autoLoadListener为null，无法自动加载");
+            return;
+        }
+        
+        // 获取LayoutManager
+        RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
+        if (layoutManager == null) {
+            Log.w(TAG, "❌ layoutManager为null，无法自动加载");
+            return;
+        }
+        
+        if (recyclerView.getAdapter() == null) {
+            Log.w(TAG, "❌ adapter为null，无法自动加载");
+            return;
+        }
+        
+        int lastVisiblePosition = -1;
+        int totalItemCount = recyclerView.getAdapter().getItemCount();
+        
+        // 根据不同的LayoutManager类型获取最后可见项
+        if (layoutManager instanceof LinearLayoutManager) {
+            lastVisiblePosition = ((LinearLayoutManager) layoutManager).findLastVisibleItemPosition();
+        } else if (layoutManager instanceof GridLayoutManager) {
+            lastVisiblePosition = ((GridLayoutManager) layoutManager).findLastVisibleItemPosition();
+        }
+        
+        // 打印当前状态
+        boolean hasMoreData = autoLoadListener.hasMoreData();
+        boolean isLoadingMore = autoLoadListener.isLoadingMore();
+        
+        Log.d(TAG, "📊 自动加载检测状态：");
+        Log.d(TAG, "  - 最后可见位置: " + lastVisiblePosition);
+        Log.d(TAG, "  - 总项数: " + totalItemCount);
+        Log.d(TAG, "  - 触发位置: " + (totalItemCount - 2));
+        Log.d(TAG, "  - hasMoreData: " + hasMoreData);
+        Log.d(TAG, "  - isLoadingMore: " + isLoadingMore);
+        Log.d(TAG, "  - isAutoLoadTriggered: " + isAutoLoadTriggered);
+        Log.d(TAG, "  - 可以触发: " + (lastVisiblePosition >= totalItemCount - 2));
+        
+        // 判断是否滚动到底部（加载卡片可见即触发）
+        // 提前2个位置就开始加载，让体验更流畅
+        if (lastVisiblePosition >= totalItemCount - 2 && 
+            hasMoreData && 
+            !isLoadingMore && 
+            !isAutoLoadTriggered) {
+            
+            Log.d(TAG, "✅ 满足所有条件，准备自动加载");
+            Log.d(TAG, "  - 最后可见位置: " + lastVisiblePosition);
+            Log.d(TAG, "  - 总项数: " + totalItemCount);
+            
+            // 标记已触发
+            isAutoLoadTriggered = true;
+            
+            // 显示加载中状态（延迟到下一帧执行，避免在滚动回调中修改RecyclerView）
+            autoLoadHandler.post(() -> {
+                if (autoLoadListener != null) {
+                    autoLoadListener.setLoading(true);
+                    Log.d(TAG, "✅ 已设置加载状态");
+                }
+            });
+            Log.d(TAG, "🔄 延迟" + AUTO_LOAD_DELAY + "ms后自动加载");
+            
+            // 取消之前的延迟任务
+            if (autoLoadRunnable != null) {
+                autoLoadHandler.removeCallbacks(autoLoadRunnable);
+            }
+            
+            // 创建延迟任务
+            autoLoadRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "⏰ 2秒延迟到期，开始执行加载");
+                    if (autoLoadListener != null) {
+                        Log.d(TAG, "📤 调用onAutoLoad()");
+                        autoLoadListener.onAutoLoad();
+                        
+                        // 设置超时检查
+                        autoLoadHandler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (isAutoLoadTriggered && autoLoadListener.isLoadingMore()) {
+                                    Log.e(TAG, "⚠️ 警告：加载已经超过5秒还未完成！");
+                                    Log.e(TAG, "  - 可能原因1：网络请求失败");
+                                    Log.e(TAG, "  - 可能原因2：loadMoreNews()方法未被正确调用");
+                                    Log.e(TAG, "  - 可能原因3：回调未正确处理");
+                                }
+                            }
+                        }, 5000);  // 5秒后检查
+                    } else {
+                        Log.e(TAG, "❌ autoLoadListener变为null了，无法加载");
+                    }
+                }
+            };
+            
+            // 延迟执行
+            autoLoadHandler.postDelayed(autoLoadRunnable, AUTO_LOAD_DELAY);
+        } else {
+            // 打印为什么没有触发
+            if (lastVisiblePosition < totalItemCount - 2) {
+                Log.d(TAG, "⏸ 未触发：还没滑到底部");
+            } else if (!hasMoreData) {
+                Log.d(TAG, "⏸ 未触发：没有更多数据");
+            } else if (isLoadingMore) {
+                Log.d(TAG, "⏸ 未触发：正在加载中");
+            } else if (isAutoLoadTriggered) {
+                Log.d(TAG, "⏸ 未触发：已经触发过了");
+            }
+        }
+    }
+    
+    /**
+     * 重置自动加载标志（在加载完成后调用）
+     */
+    public void resetAutoLoadFlag() {
+        isAutoLoadTriggered = false;
     }
 }

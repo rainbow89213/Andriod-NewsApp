@@ -51,6 +51,28 @@ public interface NewsDao {
     List<CachedNews> getAllCachedNews(int limit);
     
     /**
+     * 根据分类查询缓存的新闻
+     * 
+     * @Query 注解：执行 SQL 查询
+     * :category 是参数占位符，对应方法参数 category
+     * 
+     * SQL 解释：
+     * - SELECT * FROM cached_news：查询 cached_news 表的所有列
+     * - WHERE category = :category：筛选指定分类的新闻
+     * - ORDER BY cacheTime DESC：按 cacheTime 降序排列（最新的在前）
+     * - LIMIT :limit：限制返回的行数
+     * 
+     * @param category 分类代码（tech, economy, sports 等）
+     * @param limit 最多返回多少条数据
+     * @return 指定分类的新闻列表
+     * 
+     * 使用示例：
+     * List<CachedNews> techNews = newsDao.getCachedNewsByCategory("tech", 10);
+     */
+    @Query("SELECT * FROM cached_news WHERE category = :category ORDER BY cacheTime DESC LIMIT :limit")
+    List<CachedNews> getCachedNewsByCategory(String category, int limit);
+    
+    /**
      * 根据 ID 查询单条新闻
      * 
      * @param id 新闻ID
