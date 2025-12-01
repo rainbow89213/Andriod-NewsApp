@@ -1,0 +1,90 @@
+# Gradle 版本目录文件 (Version Catalog)
+# 
+# 作用：集中管理所有依赖库和插件的版本号
+# 优点：
+# 1. 避免在多个地方重复写版本号
+# 2. 统一管理，便于升级
+# 3. 防止版本冲突
+# 
+# 使用方式：在 build.gradle.kts 中通过 libs.xxx 引用
+
+# [versions] 版本号定义区
+# 在这里定义所有库的版本号，可以在下面的 [libraries] 和 [plugins] 中引用
+[versions]
+agp = "8.13.0"              # Android Gradle Plugin 版本
+junit = "4.13.2"            # JUnit 单元测试框架版本
+junitVersion = "1.1.5"      # AndroidX JUnit 扩展版本
+espressoCore = "3.5.1"      # Espresso UI 测试框架版本
+appcompat = "1.6.1"         # AppCompat 向后兼容库版本
+material = "1.10.0"         # Material Design 组件库版本
+activity = "1.8.0"          # AndroidX Activity 组件版本
+constraintlayout = "2.1.4"  # ConstraintLayout 布局库版本
+recyclerview = "1.3.2"      # RecyclerView 列表组件版本
+cardview = "1.0.0"          # CardView 卡片组件版本
+retrofit = "2.9.0"          # Retrofit 网络请求库版本
+okhttp = "4.12.0"           # OkHttp HTTP客户端版本
+gson = "2.10.1"             # Gson JSON解析库版本
+glide = "4.16.0"            # Glide 图片加载库版本
+
+# [libraries] 依赖库定义区
+# 定义项目中使用的所有第三方库
+# 格式：库名 = { group = "组织名", name = "库名", version.ref = "版本号引用" }
+[libraries]
+# JUnit：Java 标准单元测试框架，用于测试业务逻辑
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+
+# AndroidX JUnit 扩展：在 Android 环境中运行 JUnit 测试
+ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+
+# Espresso：Android UI 自动化测试框架
+espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+
+# AppCompat：提供向后兼容的 Activity、Fragment 等组件
+# 让新版本的功能可以在旧版本 Android 上运行
+appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+
+# Material Design：Google 的 Material Design 组件库
+# 包含按钮、卡片、输入框、导航栏等现代化 UI 组件
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+
+# Activity：AndroidX 的 Activity 组件
+# 提供现代化的 Activity 功能，如结果 API
+activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+
+# ConstraintLayout：约束布局管理器
+# 可以创建复杂的响应式布局，性能优于传统布局
+constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+
+# RecyclerView：高性能列表组件
+# 用于显示大量数据的滚动列表，支持回收和复用视图
+recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
+
+# CardView：卡片视图组件
+# 提供圆角、阴影效果的卡片容器
+cardview = { group = "androidx.cardview", name = "cardview", version.ref = "cardview" }
+
+# Retrofit：类型安全的 HTTP 客户端
+# 用于简化网络请求，支持 RESTful API
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+
+# OkHttp：高效的 HTTP 客户端
+# Retrofit 的底层实现，支持连接池、缓存等
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
+
+# Gson：Google 的 JSON 解析库
+# 用于 JSON 和 Java 对象之间的转换
+gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+
+# Glide：强大的图片加载库
+# 支持网络图片加载、缓存、占位图等功能
+glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
+
+# [plugins] 插件定义区
+# 定义 Gradle 构建插件
+[plugins]
+# Android 应用插件：提供构建 Android 应用所需的所有任务
+# 包括编译、打包、签名等功能
+android-application = { id = "com.android.application", version.ref = "agp" }
+

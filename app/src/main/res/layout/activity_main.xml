@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    activity_main.xml - MainActivity 的布局文件
+    
+    【第8次修改】添加分类标签栏和自定义滚动条
+-->
+<androidx.constraintlayout.widget.ConstraintLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <!-- 顶部栏容器 -->
+    <LinearLayout
+        android:id="@+id/topBarContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#F5F5F5"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+        
+        <!-- 分类标签栏 - 水平滚动视图 -->
+        <HorizontalScrollView
+            android:id="@+id/categoryScrollView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:scrollbars="none"
+            android:paddingVertical="8dp">
+            
+            <!-- 分类标签容器 - 线性布局 -->
+            <LinearLayout
+                android:id="@+id/categoryContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="8dp">
+                
+                <!-- 分类标签将在代码中动态添加 -->
+                
+            </LinearLayout>
+        </HorizontalScrollView>
+        
+        <!-- 布局切换按钮已移除 -->
+    </LinearLayout>
+
+    <!-- RecyclerView - 新闻列表 -->
+    <!-- 【第16次修改】支持单列/双列布局切换 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="8dp"
+        android:clipToPadding="false"
+        android:scrollbars="none"
+        app:layout_constraintTop_toBottomOf="@id/topBarContainer"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/customScrollbar" />
+    
+    <!-- 自定义滚动条 -->
+    <View
+        android:id="@+id/customScrollbar"
+        android:layout_width="8dp"
+        android:layout_height="100dp"
+        android:background="@drawable/scrollbar_thumb"
+        android:layout_marginEnd="4dp"
+        app:layout_constraintTop_toBottomOf="@id/categoryScrollView"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <FrameLayout
+        android:id="@+id/testPanelContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

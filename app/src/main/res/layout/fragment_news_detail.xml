@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
+
+    <!-- 空状态文本（平板右侧初始状态） -->
+    <TextView
+        android:id="@+id/emptyText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="请选择一条新闻查看详情"
+        android:textSize="18sp"
+        android:textColor="#999999"
+        android:visibility="gone" />
+
+    <!-- 新闻详情内容 -->
+    <ScrollView
+        android:id="@+id/detailScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- 新闻标题 -->
+            <TextView
+                android:id="@+id/detailTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="新闻标题"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="#000000"
+                android:lineSpacingExtra="6dp" />
+
+            <!-- 新闻元信息 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp">
+
+                <!-- 分类标签 -->
+                <TextView
+                    android:id="@+id/detailCategory"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/category_bg"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"
+                    android:text="科技"
+                    android:textColor="#2196F3"
+                    android:textSize="12sp"
+                    android:layout_marginEnd="10dp" />
+
+                <!-- 发布时间 -->
+                <TextView
+                    android:id="@+id/detailTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2小时前"
+                    android:textColor="#999999"
+                    android:textSize="13sp"
+                    android:layout_marginEnd="10dp" />
+
+                <!-- 阅读量 -->
+                <TextView
+                    android:id="@+id/detailReadCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1.2k 阅读"
+                    android:textColor="#999999"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <!-- 分割线 -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="#E0E0E0"
+                android:layout_marginBottom="16dp" />
+
+            <!-- 新闻摘要 -->
+            <TextView
+                android:id="@+id/detailSummary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="新闻摘要内容"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:textStyle="bold"
+                android:lineSpacingExtra="6dp"
+                android:layout_marginBottom="16dp" />
+
+            <!-- 主图片（单图或视频封面） -->
+            <ImageView
+                android:id="@+id/detailMainImage"
+                android:layout_width="match_parent"
+                android:layout_height="240dp"
+                android:scaleType="centerCrop"
+                android:visibility="gone"
+                android:layout_marginBottom="16dp" />
+
+            <!-- 多图容器 -->
+            <LinearLayout
+                android:id="@+id/detailMultiImageContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:layout_marginBottom="16dp" />
+
+            <!-- 新闻正文 -->
+            <TextView
+                android:id="@+id/detailContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="新闻正文内容"
+                android:textSize="15sp"
+                android:textColor="#333333"
+                android:lineSpacingExtra="8dp" />
+
+            <!-- 底部留白 -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="50dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</FrameLayout>

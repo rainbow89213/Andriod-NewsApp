@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    item_load_more.xml - 加载更多卡片布局
+    
+    特点：
+    - 无边框样式
+    - 只包含文本
+    - 居中显示
+    - 可点击
+-->
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center"
+    android:clickable="true"
+    android:focusable="true">
+
+    <!-- 加载动画 -->
+    <ProgressBar
+        android:id="@+id/loadingProgressBar"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:visibility="gone" />
+
+    <!-- 加载更多文本 -->
+    <TextView
+        android:id="@+id/loadMoreText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="加载中..."
+        android:textSize="16sp"
+        android:textColor="#999999"
+        android:padding="12dp"
+        android:layout_marginTop="8dp" />
+
+</LinearLayout>

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.newsapp.mapper.NewsMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="NewsResultMap" type="com.example.newsapp.model.News">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="summary" column="summary"/>
+        <result property="content" column="content"/>
+        <result property="imageUrl" column="image_url"/>
+        <result property="imageUrl2" column="image_url_2"/>
+        <result property="imageUrl3" column="image_url_3"/>
+        <result property="mediaType" column="media_type"/>
+        <result property="videoUrl" column="video_url"/>
+        <result property="videoDuration" column="video_duration"/>
+        <result property="videoCoverUrl" column="video_cover_url"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="readCount" column="read_count"/>
+        <result property="publishTime" column="publish_time"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        
+        <!-- 关联查询分类信息 -->
+        <association property="category" javaType="com.example.newsapp.model.Category">
+            <id property="id" column="category_id"/>
+            <result property="name" column="category_name"/>
+            <result property="code" column="category_code"/>
+        </association>
+        
+        <!-- 关联查询用户信息 -->
+        <association property="user" javaType="com.example.newsapp.model.User">
+            <id property="id" column="user_id"/>
+            <result property="username" column="username"/>
+            <result property="nickname" column="nickname"/>
+            <result property="avatar" column="avatar"/>
+        </association>
+    </resultMap>
+
+    <!-- 查询新闻列表 -->
+    <select id="selectNewsList" resultMap="NewsResultMap">
+        SELECT 
+            n.id,
+            n.title,
+            n.summary,
+            n.content,
+            n.image_url,
+            n.image_url_2,
+            n.image_url_3,
+            n.media_type,
+            n.video_url,
+            n.video_duration,
+            n.video_cover_url,
+            n.category_id,
+            n.user_id,
+            n.read_count,
+            n.publish_time,
+            n.create_time,
+            n.update_time,
+            c.name AS category_name,
+            c.code AS category_code,
+            u.username,
+            u.nickname,
+            u.avatar
+        FROM news n
+        LEFT JOIN category c ON n.category_id = c.id
+        LEFT JOIN user u ON n.user_id = u.id
+        <where>
+            <if test="categoryCode != null and categoryCode != ''">
+                AND c.code = #{categoryCode}
+            </if>
+        </where>
+        ORDER BY n.publish_time DESC
+        <if test="offset != null and limit != null">
+            LIMIT #{offset}, #{limit}
+        </if>
+    </select>
+
+    <!-- 根据ID查询新闻详情 -->
+    <select id="selectNewsById" resultMap="NewsResultMap">
+        SELECT 
+            n.id,
+            n.title,
+            n.summary,
+            n.content,
+            n.image_url,
+            n.image_url_2,
+            n.image_url_3,
+            n.media_type,
+            n.video_url,
+            n.video_duration,
+            n.video_cover_url,
+            n.category_id,
+            n.user_id,
+            n.read_count,
+            n.publish_time,
+            n.create_time,
+            n.update_time,
+            c.name AS category_name,
+            c.code AS category_code,
+            u.username,
+            u.nickname,
+            u.avatar
+        FROM news n
+        LEFT JOIN category c ON n.category_id = c.id
+        LEFT JOIN user u ON n.user_id = u.id
+        WHERE n.id = #{id}
+    </select>
+
+    <!-- 统计新闻总数 -->
+    <select id="countNews" resultType="int">
+        SELECT COUNT(*)
+        FROM news n
+        <if test="categoryCode != null and categoryCode != ''">
+            LEFT JOIN category c ON n.category_id = c.id
+            WHERE c.code = #{categoryCode}
+        </if>
+    </select>
+
+    <!-- 插入新闻 -->
+    <insert id="insertNews" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO news (title, summary, content, image_url, category_id, user_id, read_count, publish_time)
+        VALUES (#{title}, #{summary}, #{content}, #{imageUrl}, #{categoryId}, #{userId}, #{readCount}, #{publishTime})
+    </insert>
+
+    <!-- 更新新闻 -->
+    <update id="updateNews">
+        UPDATE news
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="summary != null">summary = #{summary},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="imageUrl != null">image_url = #{imageUrl},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="readCount != null">read_count = #{readCount},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除新闻 -->
+    <delete id="deleteNews">
+        DELETE FROM news WHERE id = #{id}
+    </delete>
+
+</mapper>

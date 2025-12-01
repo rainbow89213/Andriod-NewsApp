@@ -1,0 +1,34 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# NewsApp (Spring Boot)
+newsApp/target/
+newsApp/.mvn/
+newsApp/mvnw
+newsApp/mvnw.cmd
+newsApp/HELP.md
+
+# 说明文档（不上传到GitHub）
+# *.说明.md
+# *说明.md
+1.Android项目结构说明.md
+2.新闻卡片功能说明.md
+3.服务端数据下发集成说明.md
+4.Git项目管理操作说明.md
+5.数据库集成说明.md
+# 6.Room本地缓存集成说明.md - 允许创建
+7.新闻分类功能.md
+8.分类与加载更多与刷新逻辑.md
