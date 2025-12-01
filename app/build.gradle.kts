@@ -120,9 +120,15 @@ dependencies {
     // Gson：JSON解析库
     implementation(libs.gson)
     
-    // Glide：图片加载库（用于加载网络图片）
+    // Glide：图片加载库
     implementation(libs.glide)
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+    
+    // 【第6次修改】Room：本地数据库（SQLite 封装）
+    // Room 是 Google 官方推荐的 Android 本地数据库解决方案
+    // 用于缓存新闻数据，实现离线阅读和快速加载
+    implementation("androidx.room:room-runtime:2.6.1")
+    annotationProcessor("androidx.room:room-compiler:2.6.1")
     
     // ViewPager2：Fragment切换组件
     implementation("androidx.viewpager2:viewpager2:1.0.0")

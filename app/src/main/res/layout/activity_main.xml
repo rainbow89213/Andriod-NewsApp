@@ -72,7 +72,76 @@
         android:layout_marginEnd="4dp"
         app:layout_constraintTop_toBottomOf="@id/categoryScrollView"
         app:layout_constraintEnd_toEndOf="parent" />
-
+    
+    <!--
+        RecyclerView 属性说明：
+        
+        android:id="@+id/recyclerView"
+        - 设置 ID，在 MainActivity 中通过这个 ID 获取
+        
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        - 填满整个屏幕
+        
+        android:padding="8dp"
+        - 内边距 8dp
+        
+        android:clipToPadding="false"
+        - 允许内容滚动到 padding 区域，使滚动更流畅
+    -->
+    
+    <!--
+        TextView 属性说明：
+        
+        android:layout_width="wrap_content"
+        - 宽度自适应内容（根据文字长度自动调整）
+        - 其他选项：match_parent（填满父容器）、具体数值（如 100dp）
+        
+        android:layout_height="wrap_content"
+        - 高度自适应内容
+        
+        android:text="Hello World!"
+        - 显示的文字内容
+        - 建议使用字符串资源：android:text="@string/hello"
+        
+        app:layout_constraintBottom_toBottomOf="parent"
+        - 底部约束到父容器的底部
+        
+        app:layout_constraintEnd_toEndOf="parent"
+        - 右侧约束到父容器的右侧
+        
+        app:layout_constraintStart_toStartOf="parent"
+        - 左侧约束到父容器的左侧
+        
+        app:layout_constraintTop_toTopOf="parent"
+        - 顶部约束到父容器的顶部
+        
+        这四个约束使 TextView 居中显示在屏幕中央
+    -->
+    
+    <!--
+        常用的其他视图控件：
+        
+        <Button
+            android:id="@+id/button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="点击我" />
+        
+        <EditText
+            android:id="@+id/editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="请输入文字" />
+        
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/ic_launcher_foreground" />
+    -->
+    
+    <!-- 【第19次修改】曝光事件测试面板容器 -->
     <FrameLayout
         android:id="@+id/testPanelContainer"
         android:layout_width="0dp"
