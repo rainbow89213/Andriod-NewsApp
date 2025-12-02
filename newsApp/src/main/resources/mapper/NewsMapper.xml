@@ -24,6 +24,13 @@
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
         
+        <!-- 直接映射关联字段 -->
+        <result property="categoryName" column="category_name"/>
+        <result property="categoryCode" column="category_code"/>
+        <result property="username" column="username"/>
+        <result property="nickname" column="nickname"/>
+        <result property="avatar" column="avatar"/>
+        
         <!-- 关联查询分类信息 -->
         <association property="category" javaType="com.example.newsapp.model.Category">
             <id property="id" column="category_id"/>
@@ -144,5 +151,10 @@
     <delete id="deleteNews">
         DELETE FROM news WHERE id = #{id}
     </delete>
+
+    <!-- 增加阅读数 -->
+    <update id="incrementReadCount">
+        UPDATE news SET read_count = read_count + 1 WHERE id = #{id}
+    </update>
 
 </mapper>
