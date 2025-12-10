@@ -39,36 +39,6 @@ public class News {
     private String imageUrl;
     
     /**
-     * 图片URL 2
-     */
-    private String imageUrl2;
-    
-    /**
-     * 图片URL 3
-     */
-    private String imageUrl3;
-    
-    /**
-     * 媒体类型 (single_image, triple_image, video)
-     */
-    private String mediaType;
-    
-    /**
-     * 视频URL
-     */
-    private String videoUrl;
-    
-    /**
-     * 视频时长（秒）
-     */
-    private Integer videoDuration;
-    
-    /**
-     * 视频封面URL
-     */
-    private String videoCoverUrl;
-    
-    /**
      * 分类ID
      */
     private Long categoryId;
@@ -108,30 +78,4 @@ public class News {
      * 用户信息
      */
     private User user;
-    
-    // 关联查询字段（用于直接映射查询结果）
-    /**
-     * 分类名称
-     */
-    private String categoryName;
-    
-    /**
-     * 分类代码
-     */
-    private String categoryCode;
-    
-    /**
-     * 用户名
-     */
-    private String username;
-    
-    /**
-     * 用户昵称
-     */
-    private String nickname;
-    
-    /**
-     * 用户头像
-     */
-    private String avatar;
 }

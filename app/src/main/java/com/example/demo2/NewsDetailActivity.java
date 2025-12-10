@@ -48,7 +48,8 @@ public class NewsDetailActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // 处理返回按钮点击
         if (item.getItemId() == android.R.id.home) {
-            onBackPressed();
+            // 使用OnBackPressedDispatcher代替onBackPressed
+            getOnBackPressedDispatcher().onBackPressed();
             return true;
         }
         return super.onOptionsItemSelected(item);

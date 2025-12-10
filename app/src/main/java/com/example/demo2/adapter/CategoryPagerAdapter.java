@@ -32,6 +32,22 @@ public class CategoryPagerAdapter extends FragmentStateAdapter {
         return categories.size();
     }
     
+    @Override
+    public long getItemId(int position) {
+        // 返回唯一ID，确保Fragment不会被错误地重用
+        return categories.get(position).getCode().hashCode();
+    }
+    
+    @Override
+    public boolean containsItem(long itemId) {
+        for (Category category : categories) {
+            if (category.getCode().hashCode() == itemId) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     /**
      * 分类数据类
      */

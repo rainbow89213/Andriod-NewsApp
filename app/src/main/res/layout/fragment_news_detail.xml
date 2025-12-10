@@ -101,7 +101,7 @@
                 android:lineSpacingExtra="6dp"
                 android:layout_marginBottom="16dp" />
 
-            <!-- 主图片（单图或视频封面） -->
+            <!-- 主图片（单图） -->
             <ImageView
                 android:id="@+id/detailMainImage"
                 android:layout_width="match_parent"
@@ -109,6 +109,89 @@
                 android:scaleType="centerCrop"
                 android:visibility="gone"
                 android:layout_marginBottom="16dp" />
+
+            <!-- 视频播放器容器 -->
+            <FrameLayout
+                android:id="@+id/detailVideoContainer"
+                android:layout_width="match_parent"
+                android:layout_height="240dp"
+                android:background="#000000"
+                android:visibility="gone"
+                android:layout_marginBottom="16dp">
+
+                <!-- 视频封面图 -->
+                <ImageView
+                    android:id="@+id/detailVideoCover"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop" />
+
+                <!-- 播放控制层 -->
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <!-- 播放按钮 -->
+                    <ImageView
+                        android:id="@+id/detailPlayButton"
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:layout_centerInParent="true"
+                        android:src="@drawable/ic_play_circle"
+                        android:visibility="visible" />
+
+                    <!-- 倒计时显示（模拟播放） -->
+                    <LinearLayout
+                        android:id="@+id/detailCountdownContainer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:id="@+id/detailCountdownText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="00:00"
+                            android:textColor="#FFFFFF"
+                            android:textSize="48sp"
+                            android:textStyle="bold"
+                            android:shadowColor="#000000"
+                            android:shadowDx="2"
+                            android:shadowDy="2"
+                            android:shadowRadius="4" />
+
+                        <TextView
+                            android:id="@+id/detailPlaybackTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0:00 / 0:00"
+                            android:textColor="#CCCCCC"
+                            android:textSize="16sp"
+                            android:layout_marginTop="8dp" />
+                    </LinearLayout>
+
+                    <!-- 视频时长（右上角） -->
+                    <TextView
+                        android:id="@+id/detailDurationText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_margin="12dp"
+                        android:text="03:25"
+                        android:textColor="#FFFFFF"
+                        android:textSize="14sp"
+                        android:background="@drawable/video_duration_background"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp" />
+
+                </RelativeLayout>
+            </FrameLayout>
 
             <!-- 多图容器 -->
             <LinearLayout

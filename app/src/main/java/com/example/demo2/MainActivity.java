@@ -2,14 +2,20 @@ package com.example.demo2;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 import com.example.demo2.adapter.CategoryPagerAdapter;
 import com.example.demo2.fragment.NewsDetailFragment;
 import com.example.demo2.fragment.NewsListFragment;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.example.demo2.exposure.ExposureTestView;
+import com.example.demo2.exposure.CardExposureListener;
+import com.example.demo2.exposure.CardExposureEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +34,12 @@ public class MainActivity extends AppCompatActivity implements NewsListFragment.
     private CategoryPagerAdapter pagerAdapter;
     private List<CategoryPagerAdapter.Category> categories;
     
+    // 曝光测试工具
+    private ExposureTestView exposureTestView;
+    
+    // 当前活跃的 NewsListFragment
+    private NewsListFragment currentActiveFragment;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements NewsListFragment.
         initCategories();
         setupSystemUI();
         setupViewPager();
+        setupBackPressedCallback();
         
         // 如果是平板模式，显示初始的空白详情页
         if (isTablet) {
@@ -89,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements NewsListFragment.
     private void initViews() {
         tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewPager);
+        exposureTestView = findViewById(R.id.exposureTestView);
     }
     
     /**
@@ -117,8 +131,8 @@ public class MainActivity extends AppCompatActivity implements NewsListFragment.
         pagerAdapter = new CategoryPagerAdapter(this, categories);
         viewPager.setAdapter(pagerAdapter);
         
-        // 设置预加载的Fragment数量（左右各1个）
-        viewPager.setOffscreenPageLimit(1);
+        // 设置预加载的Fragment数量（只预加载当前页，减少Fragment重建）
+        viewPager.setOffscreenPageLimit(ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT);
         
         // 连接TabLayout和ViewPager2
         new TabLayoutMediator(tabLayout, viewPager,
@@ -136,8 +150,13 @@ public class MainActivity extends AppCompatActivity implements NewsListFragment.
                 super.onPageSelected(position);
                 CategoryPagerAdapter.Category category = categories.get(position);
                 Log.d(TAG, "📄 切换到分类: " + category.getName());
+                
+                // 连接曝光监听器到当前Fragment
+                connectExposureListener(position);
             }
         });
+        
+        // 初始连接会在 onFragmentReady 中处理
         
         // 设置Tab选择监听（可选）
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -154,10 +173,17 @@ public class MainActivity extends AppCompatActivity implements NewsListFragment.
             
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-                // Tab重新选择（可用于滚动到顶部）
+                // Tab重新选择（用于滚动到顶部）
                 int position = tab.getPosition();
                 Log.d(TAG, "👆👆 重新选择Tab: " + categories.get(position).getName());
-                // 可以在这里实现双击Tab滚动到顶部的功能
+                
+                // 获取当前Fragment并滚动到顶部
+                Fragment currentFragment = getSupportFragmentManager()
+                    .findFragmentByTag("f" + viewPager.getCurrentItem());
+                if (currentFragment instanceof NewsListFragment) {
+                    ((NewsListFragment) currentFragment).scrollToTop();
+                    Log.d(TAG, "📍 滚动到顶部");
+                }
             }
         });
         
@@ -186,13 +212,19 @@ public class MainActivity extends AppCompatActivity implements NewsListFragment.
             return;
         }
         
-        Log.d(TAG, "📰 选中新闻: " + newsItem.getTitle() + ", 平板模式: " + isTablet);
+        Log.d(TAG, "📰 onNewsSelected 被调用: " + newsItem.getTitle() + ", 平板模式: " + isTablet);
+        
+        // 重新检查 detail_container 是否存在
+        View detailContainer = findViewById(R.id.detail_container);
+        Log.d(TAG, "🔍 detail_container 存在: " + (detailContainer != null));
         
         if (isTablet) {
             // 平板模式：在右侧显示详情
+            Log.d(TAG, "➡️ 调用 showNewsDetail");
             showNewsDetail(newsItem);
         } else {
             // 手机模式：启动新Activity
+            Log.d(TAG, "➡️ 启动 NewsDetailActivity");
             try {
                 android.content.Intent intent = new android.content.Intent(this, NewsDetailActivity.class);
                 intent.putExtra(NewsDetailActivity.EXTRA_NEWS_ITEM, newsItem);
@@ -214,24 +246,24 @@ public class MainActivity extends AppCompatActivity implements NewsListFragment.
             return;
         }
         
-        // 获取当前Fragment，避免重复显示相同新闻
-        NewsDetailFragment currentFragment = (NewsDetailFragment) getSupportFragmentManager()
-            .findFragmentById(R.id.detail_container);
-        if (currentFragment != null) {
-            // 直接更新现有Fragment，不需要replace
-            currentFragment.updateNewsItem(newsItem);
-            Log.d(TAG, "📄 更新详情Fragment - " + newsItem.getTitle());
+        // 检查 detail_container 是否存在
+        View detailContainer = findViewById(R.id.detail_container);
+        if (detailContainer == null) {
+            Log.e(TAG, "❌ detail_container 不存在！");
             return;
         }
+        Log.d(TAG, "✅ detail_container 存在，visibility=" + detailContainer.getVisibility());
         
-        // 如果没有当前Fragment，创建新的
+        // 每次都创建新的Fragment并添加到返回栈
+        // 这样才能正确实现返回功能
         NewsDetailFragment fragment = NewsDetailFragment.newInstance(newsItem);
         getSupportFragmentManager().beginTransaction()
             .replace(R.id.detail_container, fragment)
-            .addToBackStack(null)
+            .addToBackStack("news_" + newsItem.getTitle())  // 添加到返回栈，使用新闻标题作为标识
             .commitAllowingStateLoss();  // 使用commitAllowingStateLoss避免状态丢失异常
             
-        Log.d(TAG, "📚 创建新详情Fragment - " + newsItem.getTitle());
+        Log.d(TAG, "📚 显示新闻详情 - " + newsItem.getTitle() + 
+                  "，返回栈深度: " + (getSupportFragmentManager().getBackStackEntryCount() + 1));
     }
     
     /**
@@ -246,32 +278,42 @@ public class MainActivity extends AppCompatActivity implements NewsListFragment.
     }
     
     /**
-     * 处理返回键按下事件
+     * 设置返回键处理回调（使用新的OnBackPressedDispatcher）
      */
-    @Override
-    public void onBackPressed() {
-        // 获取Fragment管理器
-        androidx.fragment.app.FragmentManager fragmentManager = getSupportFragmentManager();
-        
-        // 检查是否有Fragment在返回栈中
-        if (fragmentManager.getBackStackEntryCount() > 0) {
-            // 如果有，弹出最上面的Fragment
-            fragmentManager.popBackStack();
-            Log.d(TAG, "⬅️ 返回上一个Fragment，剩余栈深度: " + (fragmentManager.getBackStackEntryCount() - 1));
-            
-            // 如果返回栈空了，显示空白详情页（仅平板模式）
-            if (isTablet && fragmentManager.getBackStackEntryCount() == 1) {
-                // 延迟执行，确保popBackStack完成
-                new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-                    if (fragmentManager.getBackStackEntryCount() == 0) {
-                        showEmptyDetail();
+    private void setupBackPressedCallback() {
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // 平板模式特殊处理
+                if (isTablet) {
+                    // 获取Fragment管理器
+                    androidx.fragment.app.FragmentManager fragmentManager = getSupportFragmentManager();
+                    
+                    // 检查是否有Fragment在返回栈中
+                    if (fragmentManager.getBackStackEntryCount() > 0) {
+                        // 如果有，弹出最上面的Fragment
+                        fragmentManager.popBackStack();
+                        Log.d(TAG, "⬅️ 返回上一个Fragment，剩余栈深度: " + (fragmentManager.getBackStackEntryCount() - 1));
+                        
+                        // 如果返回栈空了，显示空白详情页
+                        if (fragmentManager.getBackStackEntryCount() == 0) {
+                            // 延迟执行，确保popBackStack完成
+                            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                                showEmptyDetail();
+                            }, 100);
+                        }
+                        return;  // 处理完平板模式，直接返回
                     }
-                }, 100);
+                }
+                
+                // 手机模式或平板模式没有Fragment在返回栈
+                // 显示退出确认对话框
+                showExitConfirmDialog();
             }
-        } else {
-            // 如果没有Fragment在返回栈中，显示退出确认对话框
-            showExitConfirmDialog();
-        }
+        };
+        
+        // 将回调添加到OnBackPressedDispatcher
+        getOnBackPressedDispatcher().addCallback(this, callback);
     }
     
     /**
@@ -282,7 +324,7 @@ public class MainActivity extends AppCompatActivity implements NewsListFragment.
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastBackPressTime < 2000) {
             // 2秒内按了两次，直接退出
-            super.onBackPressed();
+            finish();  // 使用finish()代替super.onBackPressed()
         } else {
             // 第一次按返回键，显示提示
             lastBackPressTime = currentTime;
@@ -292,4 +334,52 @@ public class MainActivity extends AppCompatActivity implements NewsListFragment.
     
     // 添加一个变量来记录上次按返回键的时间
     private long lastBackPressTime = 0;
+    
+    // 当前连接的Fragment位置
+    private int currentConnectedPosition = -1;
+    
+    /**
+     * 连接曝光监听器到指定位置的Fragment
+     */
+    private void connectExposureListener(int position) {
+        // 不再使用，改用 onFragmentReady
+    }
+    
+    /**
+     * 当 Fragment 准备好时调用（由 NewsListFragment 调用）
+     */
+    public void onFragmentReady(NewsListFragment fragment, String categoryCode) {
+        Log.d(TAG, "📊 onFragmentReady: " + categoryCode);
+        
+        // 检查是否是当前显示的分类
+        int currentPosition = viewPager.getCurrentItem();
+        if (currentPosition < categories.size()) {
+            String currentCategoryCode = categories.get(currentPosition).getCode();
+            
+            if (categoryCode.equals(currentCategoryCode)) {
+                // 这是当前显示的 Fragment，连接监听器
+                connectToFragment(fragment);
+            }
+        }
+    }
+    
+    /**
+     * 连接到指定的 Fragment
+     */
+    private void connectToFragment(NewsListFragment fragment) {
+        if (exposureTestView == null || fragment == null) {
+            return;
+        }
+        
+        // 断开之前的连接
+        if (currentActiveFragment != null && currentActiveFragment != fragment) {
+            currentActiveFragment.removeExposureListener(exposureTestView);
+        }
+        
+        // 连接新的 Fragment
+        fragment.setExposureListener(exposureTestView);
+        currentActiveFragment = fragment;
+        
+        Log.d(TAG, "📊 ✅ 曝光监听器已连接");
+    }
 }

@@ -20,13 +20,22 @@ public class ApiClient {
     // 后端服务器基础URL
     // 注意：使用10.0.2.2是Android模拟器访问本机localhost的特殊IP
     // 如果使用真机调试，需要改为电脑的实际IP地址
-    private static final String BASE_URL = "http://10.0.2.2:8080/";  // 修改为8080端口，与后端一致
+    private static final String BASE_URL = getBaseUrl();
     
     // Retrofit实例（单例）
     private static Retrofit retrofit = null;
     
     // API服务接口实例（单例）
     private static NewsApiService newsApiService = null;
+    
+    /**
+     * 获取基础URL
+     * 统一使用 10.0.2.2，通过 adb reverse 让所有设备都能访问
+     */
+    private static String getBaseUrl() {
+        Log.d(TAG, "🌐 使用统一地址: 10.0.2.2:8080 (需要 adb reverse)");
+        return "http://10.0.2.2:8080/";
+    }
     
     /**
      * 获取Retrofit实例（懒加载单例）
@@ -93,11 +102,11 @@ public class ApiClient {
     }
     
     /**
-     * 获取基础URL（供其他组件使用）
+     * 获取当前使用的基础URL（供其他组件使用）
      * 
      * @return 基础URL
      */
-    public static String getBaseUrl() {
+    public static String getCurrentBaseUrl() {
         return BASE_URL;
     }
     

@@ -70,25 +70,30 @@
                         android:layout_height="wrap_content"
                         android:text="00:00"
                         android:textColor="#FFFFFF"
-                        android:textSize="24sp"
-                        android:textStyle="bold" />
+                        android:textSize="36sp"
+                        android:textStyle="bold"
+                        android:shadowColor="#000000"
+                        android:shadowDx="2"
+                        android:shadowDy="2"
+                        android:shadowRadius="4" />
 
                     <TextView
+                        android:id="@+id/playbackTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="模拟播放中"
+                        android:text="0:00 / 0:00"
                         android:textColor="#CCCCCC"
-                        android:textSize="12sp"
+                        android:textSize="14sp"
                         android:layout_marginTop="4dp" />
                 </LinearLayout>
 
-                <!-- 视频时长 -->
+                <!-- 视频时长（右上角） -->
                 <TextView
                     android:id="@+id/durationText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentTop="true"
                     android:layout_margin="8dp"
                     android:text="03:25"
                     android:textColor="#FFFFFF"
@@ -115,6 +120,18 @@
                     android:paddingEnd="6dp"
                     android:paddingTop="2dp"
                     android:paddingBottom="2dp"
+                    android:visibility="gone" />
+                
+                <!-- 简化的进度条（底部，仅作为视觉辅助） -->
+                <ProgressBar
+                    android:id="@+id/videoProgress"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:layout_alignParentBottom="true"
+                    android:max="100"
+                    android:progress="0"
+                    android:progressDrawable="@android:drawable/progress_horizontal"
                     android:visibility="gone" />
 
             </RelativeLayout>

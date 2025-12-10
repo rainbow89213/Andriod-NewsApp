@@ -1,10 +1,12 @@
 package com.example.demo2.fragment;
 
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -41,6 +43,21 @@ public class NewsDetailFragment extends Fragment {
     private TextView summaryText;
     private ScrollView scrollView;
     private TextView emptyText;
+    
+    // 视频相关视图
+    private FrameLayout videoContainer;
+    private ImageView videoCover;
+    private ImageView playButton;
+    private View countdownContainer;
+    private TextView countdownText;
+    private TextView playbackTime;
+    private TextView durationText;
+    
+    // 视频播放控制
+    private CountDownTimer countDownTimer;
+    private boolean isPlaying = false;
+    private int currentProgress = 0;
+    private int totalDuration = 0;
     
     private NewsItem newsItem;
     
@@ -105,6 +122,15 @@ public class NewsDetailFragment extends Fragment {
         summaryText = view.findViewById(R.id.detailSummary);
         scrollView = view.findViewById(R.id.detailScrollView);
         emptyText = view.findViewById(R.id.emptyText);
+        
+        // 视频相关视图
+        videoContainer = view.findViewById(R.id.detailVideoContainer);
+        videoCover = view.findViewById(R.id.detailVideoCover);
+        playButton = view.findViewById(R.id.detailPlayButton);
+        countdownContainer = view.findViewById(R.id.detailCountdownContainer);
+        countdownText = view.findViewById(R.id.detailCountdownText);
+        playbackTime = view.findViewById(R.id.detailPlaybackTime);
+        durationText = view.findViewById(R.id.detailDurationText);
     }
     
     /**
@@ -179,10 +205,12 @@ public class NewsDetailFragment extends Fragment {
             }
             
         } else if ("video".equals(mediaType)) {
-            // 视频模式，显示封面
-            mainImage.setVisibility(View.VISIBLE);
+            // 视频模式，显示视频播放器
+            mainImage.setVisibility(View.GONE);
             multiImageContainer.setVisibility(View.GONE);
+            videoContainer.setVisibility(View.VISIBLE);
             
+            // 加载视频封面
             String coverUrl = newsItem.getVideoCoverUrl();
             if (TextUtils.isEmpty(coverUrl)) {
                 coverUrl = newsItem.getImageUrl();
@@ -192,7 +220,23 @@ public class NewsDetailFragment extends Fragment {
                 .load(coverUrl)
                 .placeholder(R.drawable.placeholder)
                 .error(R.drawable.error_image)
-                .into(mainImage);
+                .into(videoCover);
+            
+            // 设置视频时长
+            totalDuration = newsItem.getVideoDuration();
+            if (durationText != null) {
+                durationText.setText(String.format(Locale.getDefault(), "%d:%02d", 
+                    totalDuration / 60, totalDuration % 60));
+            }
+            
+            // 设置播放按钮点击事件
+            if (playButton != null) {
+                playButton.setOnClickListener(v -> startPlayback());
+            }
+            
+            // 初始化显示
+            updateCountdownDisplay();
+            updatePlaybackTime();
                 
         } else {
             // 无图模式
@@ -325,5 +369,99 @@ public class NewsDetailFragment extends Fragment {
     private int dp2px(float dp) {
         float density = getResources().getDisplayMetrics().density;
         return (int) (dp * density + 0.5f);
+    }
+    
+    /**
+     * 开始播放视频（模拟）
+     */
+    private void startPlayback() {
+        if (isPlaying || totalDuration == 0) return;
+        
+        isPlaying = true;
+        
+        // 隐藏播放按钮，显示倒计时容器
+        if (playButton != null) {
+            playButton.setVisibility(View.GONE);
+        }
+        if (countdownContainer != null) {
+            countdownContainer.setVisibility(View.VISIBLE);
+        }
+        
+        // 创建倒计时器模拟播放
+        countDownTimer = new CountDownTimer((totalDuration - currentProgress) * 1000L, 100) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                currentProgress = totalDuration - (int)(millisUntilFinished / 1000);
+                updateCountdownDisplay();
+                updatePlaybackTime();
+            }
+            
+            @Override
+            public void onFinish() {
+                currentProgress = totalDuration;
+                updateCountdownDisplay();
+                updatePlaybackTime();
+                stopPlayback();
+            }
+        };
+        countDownTimer.start();
+        
+        android.util.Log.d("NewsDetailFragment", "▶️ 开始播放视频");
+    }
+    
+    /**
+     * 停止播放视频
+     */
+    private void stopPlayback() {
+        if (!isPlaying) return;
+        
+        isPlaying = false;
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+            countDownTimer = null;
+        }
+        
+        // 显示播放按钮，隐藏倒计时容器
+        if (playButton != null) {
+            playButton.setVisibility(View.VISIBLE);
+        }
+        if (countdownContainer != null) {
+            countdownContainer.setVisibility(View.GONE);
+        }
+        
+        android.util.Log.d("NewsDetailFragment", "⏸️ 停止播放视频");
+    }
+    
+    /**
+     * 更新倒计时显示
+     */
+    private void updateCountdownDisplay() {
+        if (countdownText != null) {
+            // 显示剩余时间（倒计时效果）
+            int remainingTime = totalDuration - currentProgress;
+            String countdown = String.format(Locale.getDefault(), "%d:%02d", 
+                remainingTime / 60, remainingTime % 60);
+            countdownText.setText(countdown);
+        }
+    }
+    
+    /**
+     * 更新播放时间显示
+     */
+    private void updatePlaybackTime() {
+        if (playbackTime != null) {
+            String current = String.format(Locale.getDefault(), "%d:%02d", 
+                currentProgress / 60, currentProgress % 60);
+            String total = String.format(Locale.getDefault(), "%d:%02d", 
+                totalDuration / 60, totalDuration % 60);
+            playbackTime.setText(current + " / " + total);
+        }
+    }
+    
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // 停止播放并清理资源
+        stopPlayback();
     }
 }
